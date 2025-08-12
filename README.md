@@ -100,7 +100,10 @@ REACT_APP_API_URL=https://your-api-url.com
 - If you see errors about missing dependencies, run `npm install` again.
 - For port conflicts, change the port in `package.json` or `.env`.
 
-## Contributing
+## screen shoots
+<img width="1437" height="900" alt="Screenshot 2025-08-12 at 17 13 09" src="https://github.com/user-attachments/assets/3770a5b0-519e-420b-bfe0-2758fb53a26d" />
+<img width="1434" height="897" alt="Screenshot 2025-08-12 at 17 12 57" src="https://github.com/user-attachments/assets/c1ec3ac8-75d2-4650-b911-8ce3953f4816" />
+
 
 1. Fork the repo
 2. Create your feature branch (`git checkout -b feature/my-feature`)
