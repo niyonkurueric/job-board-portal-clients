@@ -1,16 +1,27 @@
-import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from '@/store/store';
-import { setSelectedJob } from '@/store/slices/jobsSlice';
-import { applyToJob } from '@/api/jobsApi';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useToast } from '@/hooks/use-toast';
-import { fetchJobById } from '@/api/jobsApi';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { CalendarDays, MapPin, Building2, User, FileText, ExternalLink, Clock, Users } from 'lucide-react';
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "@/store/store";
+import { setSelectedJob } from "@/store/slices/jobsSlice";
+import { applyToJob } from "@/api/jobsApi";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import { fetchJobById } from "@/api/jobsApi";
+import { fetchUserApplications } from "@/api/applicationsApi";
+import { setUserApplications } from "@/store/slices/applicationsSlice";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import {
+  CalendarDays,
+  MapPin,
+  Building2,
+  User,
+  FileText,
+  ExternalLink,
+  Clock,
+  Users,
+} from "lucide-react";
 
 const JobDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -20,28 +31,54 @@ const JobDetails = () => {
   const [hasApplied, setHasApplied] = useState(false);
   const [isApplicationOpen, setIsApplicationOpen] = useState(false);
   const [applicationData, setApplicationData] = useState({
-    cvLink: '',
-    coverLetter: '',
+    cvLink: "",
+    coverLetter: "",
   });
   const [jobApplications, setJobApplications] = useState<any[]>([]);
   const [loadingApplications, setLoadingApplications] = useState(false);
-  
+
   const { jobs, selectedJob } = useSelector((state: RootState) => state.jobs);
   const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
   const { userApplications } = useSelector((state: RootState) => state.applications);
 
+  // Ensure user's applications are loaded so we can accurately detect hasApplied
+  useEffect(() => {
+    const ensureUserApplications = async () => {
+      try {
+        if (
+          isAuthenticated &&
+          (!Array.isArray(userApplications) || userApplications.length === 0)
+        ) {
+          const res: any = await fetchUserApplications();
+          const apps =
+            res && res.success && Array.isArray(res.data)
+              ? res.data
+              : Array.isArray(res)
+              ? res
+              : [];
+          dispatch(setUserApplications(apps));
+        }
+      } catch {
+        // ignore
+      }
+    };
+    ensureUserApplications();
+  }, [isAuthenticated, dispatch]);
+
   useEffect(() => {
     if (!id) return;
-    let job = jobs.find(j => String(j.id) === String(id));
+    let job = jobs.find((j) => String(j.id) === String(id));
     if (job) {
       dispatch(setSelectedJob(job));
-      const applied = userApplications.some(app => app.jobId === id);
+      const applied = userApplications.some(
+        (app) => String((app as any).jobId ?? (app as any).job_id) === String(id)
+      );
       setHasApplied(applied);
       setLoadingApplications(true);
       fetchJobById(id)
         .then((jobDataRaw) => {
           let jobData = jobDataRaw as any;
-          if (jobData && typeof jobData === 'object' && 'data' in jobData && jobData.data) {
+          if (jobData && typeof jobData === "object" && "data" in jobData && jobData.data) {
             jobData = jobData.data;
           }
           if (jobData) {
@@ -56,12 +93,14 @@ const JobDetails = () => {
       fetchJobById(id)
         .then((jobDataRaw) => {
           let jobData = jobDataRaw as any;
-          if (jobData && typeof jobData === 'object' && 'data' in jobData && jobData.data) {
+          if (jobData && typeof jobData === "object" && "data" in jobData && jobData.data) {
             jobData = jobData.data;
           }
           if (jobData && jobData.id) {
             dispatch(setSelectedJob(jobData));
-            const applied = userApplications.some(app => app.jobId === String(jobData.id));
+            const applied = userApplications.some(
+              (app) => String((app as any).jobId ?? (app as any).job_id) === String(jobData.id)
+            );
             setHasApplied(applied);
             setJobApplications(jobData.applications || []);
           } else {
@@ -78,7 +117,7 @@ const JobDetails = () => {
 
   const handleApplicationSubmit = async () => {
     if (!isAuthenticated) {
-      navigate('/login');
+      navigate("/login");
       return;
     }
     if (!selectedJob || !user) return;
@@ -94,19 +133,23 @@ const JobDetails = () => {
       setHasApplied(true);
       setIsApplicationOpen(false);
       setApplicationData({
-        cvLink: '',
-        coverLetter: '',
+        cvLink: "",
+        coverLetter: "",
       });
       toast({
         title: "Application Submitted!",
         description: "Your application has been submitted successfully.",
       });
-      navigate('/dashboard/applications');
+      navigate("/jobs");
     } catch (error: any) {
+      let errorMsg = error?.message || "Could not submit your application. Please try again.";
+      if (error && (error.status === 409 || /UNIQUE constraint/i.test(String(error.message)))) {
+        errorMsg = "You have already applied to this job.";
+      }
       toast({
         title: "Application Failed",
-        description: error?.message || 'Could not submit your application. Please try again.',
-        variant: 'destructive',
+        description: errorMsg,
+        variant: "destructive",
       });
     }
   };
@@ -119,7 +162,7 @@ const JobDetails = () => {
             <FileText className="w-8 h-8 text-slate-400" />
           </div>
           <p className="text-lg text-slate-600">Job not found</p>
-          <Button onClick={() => navigate('/jobs')} variant="outline">
+          <Button onClick={() => navigate("/jobs")} variant="outline">
             Browse All Jobs
           </Button>
         </div>
@@ -127,8 +170,8 @@ const JobDetails = () => {
     );
   }
 
-  // User view: can apply
-  if (!user || user.role !== 'admin') {
+  // User view: can apply (admins cannot apply)
+  if (!user || user.role !== "admin") {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
         {/* Hero Section */}
@@ -136,7 +179,6 @@ const JobDetails = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
               <div className="flex-1">
-            
                 <h1 className="text-4xl lg:text-5xl font-bold mb-4 leading-tight">
                   {selectedJob.title}
                 </h1>
@@ -156,9 +198,8 @@ const JobDetails = () => {
                     </div>
                   )}
                 </div>
-
               </div>
-              
+
               {/* Action Card */}
               <div className="lg:w-80">
                 <Card className="shadow-2xl border-0 bg-white/95 backdrop-blur">
@@ -167,23 +208,40 @@ const JobDetails = () => {
                       <h3 className="text-xl font-semibold text-gray-800 mb-2">Ready to Apply?</h3>
                       <p className="text-gray-600 text-sm">Join our team and make an impact</p>
                     </div>
-                    <Button
-                      onClick={() => {
-                        if (!isAuthenticated) {
-                          navigate('/login', { state: { fromApply: true, jobId: selectedJob.id } });
-                        } else {
-                          navigate(`/dashboard/jobs/${selectedJob.id}/apply`);
-                        }
-                      }}
-                      disabled={hasApplied}
-                      className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 rounded-lg shadow-lg transition-all duration-200 transform hover:scale-105"
-                    >
-                      {hasApplied ? '✓ Already Applied' : 'Apply Now'}
-                    </Button>
-                    {hasApplied && (
+                    {isAuthenticated && !hasApplied && (
+                      <Button
+                        onClick={() => {
+                          if (!isAuthenticated) {
+                            navigate("/login", {
+                              state: { fromApply: true, jobId: selectedJob.id },
+                            });
+                          } else {
+                            navigate(`/dashboard/jobs/${selectedJob.id}/apply`);
+                          }
+                        }}
+                        disabled={hasApplied}
+                        className="w-full bg-gradient-to-r   from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 rounded-lg shadow-lg transition-all duration-200 transform hover:scale-105"
+                      >
+                        Apply Now
+                      </Button>
+                    )}
+                    {isAuthenticated && hasApplied && (
                       <p className="text-center text-sm text-green-600 mt-3 font-medium">
                         Application submitted successfully!
                       </p>
+                    )}
+                    {!isAuthenticated && (
+                      <Button
+                        onClick={() =>
+                          navigate("/login", {
+                            state: { fromApply: true, jobId: selectedJob.id },
+                          })
+                        }
+                        variant="outline"
+                        className="w-full mt-2"
+                      >
+                        Sign in to Apply
+                      </Button>
                     )}
                   </CardContent>
                 </Card>
@@ -207,8 +265,11 @@ const JobDetails = () => {
                 <CardContent>
                   <div className="prose prose-gray max-w-none">
                     <div
-                     className="text-gray-700 leading-relaxed whitespace-pre-line text-base space-y-4"
-                      dangerouslySetInnerHTML={{ __html: selectedJob.description || 'No description available for this position.' }}
+                      className="text-gray-700 leading-relaxed whitespace-pre-line text-base space-y-4"
+                      dangerouslySetInnerHTML={{
+                        __html:
+                          selectedJob.description || "No description available for this position.",
+                      }}
                     />
                   </div>
                 </CardContent>
@@ -218,7 +279,9 @@ const JobDetails = () => {
               {/* Job Info */}
               <Card className="shadow-lg border-0 bg-white/80 backdrop-blur">
                 <CardHeader>
-                  <CardTitle className="text-lg font-semibold text-gray-800">Job Information</CardTitle>
+                  <CardTitle className="text-lg font-semibold text-gray-800">
+                    Job Information
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center gap-3">
@@ -243,7 +306,9 @@ const JobDetails = () => {
                         <Clock className="w-4 h-4 text-gray-500" />
                         <div>
                           <p className="text-sm text-gray-500">Posted</p>
-                          <p className="font-medium">{new Date(selectedJob.created_at).toLocaleDateString()}</p>
+                          <p className="font-medium">
+                            {new Date(selectedJob.created_at).toLocaleDateString()}
+                          </p>
                         </div>
                       </div>
                       <Separator />
@@ -264,11 +329,13 @@ const JobDetails = () => {
               {/* Share */}
               <Card className="shadow-lg border-0 bg-white/80 backdrop-blur">
                 <CardHeader>
-                  <CardTitle className="text-lg font-semibold text-gray-800">Share this job</CardTitle>
+                  <CardTitle className="text-lg font-semibold text-gray-800">
+                    Share this job
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     className="w-full"
                     onClick={() => navigator.clipboard.writeText(window.location.href)}
                   >
@@ -292,8 +359,7 @@ const JobDetails = () => {
       {/* Admin Header */}
       <div className="bg-gradient-to-r from-slate-800 to-slate-900 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex items-center gap-2 mb-4">
-          </div>
+          <div className="flex items-center gap-2 mb-4"></div>
           <h1 className="text-3xl lg:text-4xl font-bold mb-4">{selectedJob.title}</h1>
           <div className="flex flex-wrap items-center gap-4 text-slate-300">
             <div className="flex items-center gap-2">
@@ -360,7 +426,6 @@ const JobDetails = () => {
             </Card>
           </div>
         </div>
-
       </div>
     </div>
   );

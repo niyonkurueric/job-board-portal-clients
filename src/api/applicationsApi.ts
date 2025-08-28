@@ -2,7 +2,7 @@ import { apiFetch } from './apiFetch';
 
 export const fetchApplicationsByJobId = async (jobId: string | number) => {
   try {
-    const res = await apiFetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:7600'}/api/applications/job/${jobId}`);
+    const res = await apiFetch(`/api/applications/job/${jobId}`);
     if (res && (res as any).success && Array.isArray((res as any).data)) {
       return (res as any).data;
     }
@@ -14,7 +14,7 @@ export const fetchApplicationsByJobId = async (jobId: string | number) => {
 
 export const fetchAllApplications = async () => {
   try {
-    const res = await apiFetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:7600'}/api/applications/all`);
+    const res = await apiFetch(`/api/applications/all`);
     if (res && (res as any).success && Array.isArray((res as any).data)) {
       return (res as any).data;
     }
@@ -30,27 +30,23 @@ export const applyForJob = async (applicantData: {
   cv_url: string;
   cover_letter: string;
 }) => {
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:7600';
-  return apiFetch(`${BACKEND_URL}/api/applications`, {
+  return apiFetch(`/api/applications`, {
     method: 'POST',
     body: JSON.stringify(applicantData),
   }, true);
 };
 
 export const fetchUserApplications = async () => {
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:7600';
-  return apiFetch(`${BACKEND_URL}/api/applications/me`, {},true);
+  return apiFetch(`/api/applications/me`, {},true);
 };
 
 export const fetchApplicationsForJob = async (jobId) => {
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:7600';
-  return apiFetch(`${BACKEND_URL}/api/applications/job/${jobId}`);
+  return apiFetch(`/api/applications/job/${jobId}`);
 };
 
 export const fetchAdminApplications = async () => {
   try {
-    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:7600';
-    const res = await apiFetch(`${BACKEND_URL}/api/applications/admin/jobs-applications`, {}, true);
+    const res = await apiFetch(`/api/applications/admin/jobs-applications`, {}, true);
     if (res && (res as any).success && Array.isArray((res as any).data)) {
       return (res as any).data;
     }

@@ -1,9 +1,7 @@
 import { apiFetch } from './apiFetch';
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:7600';
 
 export const updateJob = async (jobId: string | number, jobData: any) => {
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:7600';
-  return apiFetch(`${BACKEND_URL}/api/jobs/${jobId}`, {
+  return apiFetch(`/api/jobs/${jobId}`, {
     method: 'PUT',
     body: JSON.stringify(jobData),
   }, true);
@@ -15,8 +13,7 @@ export const createJob = async (jobData: {
   location: string;
   description: string;
 }) => {
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:7600';
-  return apiFetch(`${BACKEND_URL}/api/jobs`, {
+  return apiFetch(`/api/jobs`, {
     method: 'POST',
     body: JSON.stringify(jobData),
   }, true);
@@ -24,27 +21,38 @@ export const createJob = async (jobData: {
 
 
 export const fetchJobs = async (page = 1, pageSize = 10) => {
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:7600';
-  const url = `${BACKEND_URL}/api/jobs?page=${page}&pageSize=${pageSize}`;
+  const url = `/api/jobs?page=${page}&pageSize=${pageSize}`;
+  return apiFetch(url, {}, true);
+};
+
+export const fetchPublishedJobs = async (
+  page = 1,
+  pageSize = 10,
+  filters?: { search?: string; location?: string }
+) => {
+  const params = new URLSearchParams();
+  params.append('page', String(page));
+  params.append('pageSize', String(pageSize));
+  params.append('status', 'published');
+  if (filters?.search) params.append('search', filters.search);
+  if (filters?.location) params.append('location', filters.location);
+  const url = `/api/jobs/published?${params.toString()}`;
   return apiFetch(url);
 };
 
 export const applyToJob = async (jobId: string, userData: any) => {
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:7600';
-  return apiFetch(`${BACKEND_URL}/api/jobs/${jobId}/apply`, {
+  return apiFetch(`/api/jobs/${jobId}/apply`, {
     method: 'POST',
     body: JSON.stringify(userData),
   }, true);
 };
 
 export const fetchJobById = async (jobId: string | number) => {
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:7600';
-  return apiFetch(`${BACKEND_URL}/api/jobs/${jobId}`);
+  return apiFetch(`/api/jobs/${jobId}`);
 };
 
 export const deleteJob = async (jobId: string | number) => {
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:7600';
-  return apiFetch(`${BACKEND_URL}/api/jobs/${jobId}`, {
+  return apiFetch(`/api/jobs/${jobId}`, {
     method: 'DELETE',
   }, true);
 };

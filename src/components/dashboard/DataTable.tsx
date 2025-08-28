@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 const DataTable = ({ columns, data, actions }) => {
   return (
@@ -7,7 +7,9 @@ const DataTable = ({ columns, data, actions }) => {
         <thead>
           <tr className="text-left border-b">
             {columns.map((col) => (
-              <th key={col.key} className="py-2 px-3">{col.label}</th>
+              <th key={col.key} className="py-2 px-3">
+                {col.label}
+              </th>
             ))}
             {actions && <th className="py-2 px-3">Actions</th>}
           </tr>
@@ -22,16 +24,22 @@ const DataTable = ({ columns, data, actions }) => {
               ))}
               {actions && (
                 <td className="py-2 px-3 flex gap-2">
-                  {actions.map((action, i) => (
-                    <button
-                      key={i}
-                      onClick={() => action.onClick(row)}
-                      className={action.className}
-                      title={action.label}
-                    >
-                      {action.icon ? <action.icon className={action.iconClassName} /> : action.label}
-                    </button>
-                  ))}
+                  {actions
+                    .filter((action) => !action.shouldShow || action.shouldShow(row))
+                    .map((action, i) => (
+                      <button
+                        key={i}
+                        onClick={() => action.onClick(row)}
+                        className={action.className}
+                        title={action.label}
+                      >
+                        {action.icon ? (
+                          <action.icon className={action.iconClassName} />
+                        ) : (
+                          action.label
+                        )}
+                      </button>
+                    ))}
                 </td>
               )}
             </tr>
