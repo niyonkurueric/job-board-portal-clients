@@ -3,7 +3,7 @@ import { fetchJobs, fetchPublishedJobs } from "@/api/jobsApi";
 import { fetchUserApplications } from "@/api/applicationsApi";
 import DataTable from "./DataTable";
 import { Input } from "@/components/ui/input";
-import { Eye, Pencil, Trash2, Send } from "lucide-react"; // Added Send for Apply
+import { Eye, Pencil, Trash2, Send } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store/store";

@@ -1,5 +1,5 @@
 // Reusable API fetch utility for all endpoints
-const BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:7600';
+const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
 export async function apiFetch<T>(url: string, options: RequestInit = {}, requireAuth = false): Promise<T> {
   // Always use a plain object for headers

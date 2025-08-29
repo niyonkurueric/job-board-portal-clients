@@ -1,16 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { Briefcase, Upload, FileText, CheckCircle, AlertCircle, ArrowLeft, MapPin } from 'lucide-react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { fetchJobById } from '@/api/jobsApi';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from '@/store/store';
-import { applicationSchema } from '@/schema/applicationSchema';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import JoditEditor from 'jodit-react';
-import configStyles from '@/components/common/configuration';
-import { applyForJob } from '@/api/applicationsApi';
-import { useToast } from '@/components/ui/use-toast';
+import React, { useState, useEffect } from "react";
+import {
+  Briefcase,
+  Upload,
+  FileText,
+  CheckCircle,
+  AlertCircle,
+  ArrowLeft,
+  MapPin,
+} from "lucide-react";
+import { useNavigate, useParams } from "react-router-dom";
+import { fetchJobById } from "@/api/jobsApi";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "@/store/store";
+import { applicationSchema } from "@/schema/applicationSchema";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import JoditEditor from "jodit-react";
+import configStyles from "@/components/common/configuration";
+import { applyForJob } from "@/api/applicationsApi";
+import { useToast } from "@/components/ui/use-toast";
 
 const ApplyJobPage = () => {
   const { toast } = useToast();
@@ -32,31 +40,30 @@ const ApplyJobPage = () => {
   } = useForm({
     resolver: zodResolver(applicationSchema),
     defaultValues: {
-      cvLink: '',
-      coverLetter: '',
+      cvLink: "",
+      coverLetter: "",
     },
   });
 
   const applicationError = useSelector((state: RootState) => state.applications);
-// If your applicationsSlice uses error, make sure it's defined in ApplicationsState. If not, remove the optional chaining.
-  const coverLetterValue = watch('coverLetter') || '';
+  // If your applicationsSlice uses error, make sure it's defined in ApplicationsState. If not, remove the optional chaining.
+  const coverLetterValue = watch("coverLetter") || "";
 
   useEffect(() => {
     if (!job && id) {
       fetchJobById(id).then((jobDataRaw) => {
         let jobData = jobDataRaw as any;
-        if (jobData && typeof jobData === 'object' && 'data' in jobData && jobData.data) {
+        if (jobData && typeof jobData === "object" && "data" in jobData && jobData.data) {
           jobData = jobData.data;
         }
         if (jobData && jobData.id) {
-          dispatch({ type: 'jobs/addJob', payload: jobData });
+          dispatch({ type: "jobs/addJob", payload: jobData });
         }
       });
     }
   }, [id, job, dispatch]);
 
   const onSubmit = async (data) => {
-
     try {
       if (id) {
         await applyForJob({
@@ -65,20 +72,20 @@ const ApplyJobPage = () => {
           cv_url: data.cvLink,
         });
         toast({
-          title: 'Success',
-          description: 'Application submitted successfully!',
-          variant: 'default',
+          title: "Success",
+          description: "Application submitted successfully!",
+          variant: "default",
         });
       }
     } catch (error) {
-      let errorMsg = 'Failed to submit application.';
+      let errorMsg = "Failed to submit application.";
       if (error && error.message) errorMsg = error.message;
       toast({
-        title: 'Error',
+        title: "Error",
         description: errorMsg,
-        variant: 'destructive',
+        variant: "destructive",
       });
-      dispatch({ type: 'applications/fetchApplicationsFailure', payload: errorMsg });
+      dispatch({ type: "applications/fetchApplicationsFailure", payload: errorMsg });
     }
   };
 
@@ -87,11 +94,11 @@ const ApplyJobPage = () => {
     if (id) {
       navigate(`/dashboard/jobs/${id}`);
     } else {
-      navigate('/dashboard/jobs');
+      navigate("/dashboard/jobs");
     }
   };
 
-  const InputField = ({ name, label, type = 'text', placeholder, required = true, ...props }) => {
+  const InputField = ({ name, label, type = "text", placeholder, required = true, ...props }) => {
     return (
       <div className="space-y-2">
         <label className="block text-sm font-medium text-gray-700">
@@ -104,14 +111,12 @@ const ApplyJobPage = () => {
             placeholder={placeholder}
             className={`w-full px-4 py-3 border-2 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 ${
               errors[name]
-                ? 'border-red-300 bg-red-50 focus:border-red-500'
-                : 'border-gray-200 focus:border-blue-500'
+                ? "border-red-300 bg-red-50 focus:border-red-500"
+                : "border-gray-200 focus:border-blue-500"
             }`}
             {...props}
           />
-          {errors[name] && (
-            <AlertCircle className="absolute right-3 top-3 w-5 h-5 text-red-500" />
-          )}
+          {errors[name] && <AlertCircle className="absolute right-3 top-3 w-5 h-5 text-red-500" />}
         </div>
         {errors[name] && (
           <p className="text-sm text-red-600 flex items-center gap-1">
@@ -156,7 +161,7 @@ const ApplyJobPage = () => {
                   label="CV/Resume Link"
                   type="url"
                   placeholder="https://drive.google.com/your-resume"
-                  {...register('cvLink')}
+                  {...register("cvLink")}
                   error={errors.cvLink?.message}
                 />
                 <div className="space-y-2">
@@ -165,8 +170,8 @@ const ApplyJobPage = () => {
                   </label>
                   <JoditEditor
                     value={coverLetterValue}
-                    onBlur={newContent => setValue('coverLetter', newContent)}
-                    onChange={newContent => setValue('coverLetter', newContent)}
+                    onBlur={(newContent) => setValue("coverLetter", newContent)}
+                    onChange={(newContent) => setValue("coverLetter", newContent)}
                     config={configStyles}
                   />
                   {errors.coverLetter && (
@@ -176,7 +181,9 @@ const ApplyJobPage = () => {
                     </p>
                   )}
                   <div className="flex justify-end text-sm text-gray-500">
-                    <span>{typeof coverLetterValue === 'string' ? coverLetterValue.length : 0}/500</span>
+                    <span>
+                      {typeof coverLetterValue === "string" ? coverLetterValue.length : 0}/500
+                    </span>
                   </div>
                 </div>
               </div>
@@ -193,11 +200,10 @@ const ApplyJobPage = () => {
                     Submitting Application...
                   </div>
                 ) : (
-                  'Submit Application'
+                  "Submit Application"
                 )}
               </button>
             </div>
-           
           </form>
         </div>
       </div>

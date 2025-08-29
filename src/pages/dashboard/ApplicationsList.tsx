@@ -30,7 +30,7 @@ const ApplicationsList = () => {
       try {
         if (user?.role === "admin") {
           const res: any = await apiFetch(
-            `${import.meta.env.VITE_BACKEND_URL || "http://localhost:7600"}/api/applications`
+            `${import.meta.env.VITE_BACKEND_URL}/api/applications`
           );
           apps =
             res && res.success && Array.isArray(res.data)
