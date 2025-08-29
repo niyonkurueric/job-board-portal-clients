@@ -30,7 +30,7 @@ const ApplicationsList = () => {
       try {
         if (user?.role === "admin") {
           const res: any = await apiFetch(
-            `${import.meta.env.VITE_BACKEND_URL}/api/applications`
+            `${import.meta.env.VITE_BACKEND_URL||'https://core-server-job-board.vercel.app'}/api/applications`
           );
           apps =
             res && res.success && Array.isArray(res.data)
