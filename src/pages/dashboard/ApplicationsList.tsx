@@ -1,59 +1,25 @@
-import React, { useEffect } from 'react';
-import ReusableTable from '@/components/common/ReusableTable';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from '@/store/store';
-import { fetchUserApplications } from '@/api/applicationsApi';
-import { setApplications, setLoading } from '@/store/slices/applicationsSlice';
+import React, { useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "@/store/store";
+import { fetchUserApplications } from "@/api/applicationsApi";
+import { setApplications, setLoading } from "@/store/slices/applicationsSlice";
 
-import { apiFetch } from '@/api/apiFetch';
-import JobApplicationsList from './JobApplicationsList';
+import { apiFetch } from "@/api/apiFetch";
+import JobApplicationsList from "./JobApplicationsList";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import { Building2, Calendar, MapPin, Clock, CheckCircle, XCircle, Users, Eye } from "lucide-react";
 
-const columns = [
-  {
-    key: 'job_title',
-    label: 'Job Title',
-    render: (value) => value || '-',
-  },
-  {
-    key: 'cv_url',
-    label: 'CV',
-    render: (value) =>
-      value ? (
-        <a
-          href={value}
-          className="text-blue-600 underline"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          View CV
-        </a>
-      ) : (
-        '-'
-      ),
-  },
-  {
-    key: 'cover_letter',
-    label: 'Cover Letter',
-    render: (value) => (
-      <span
-        className="max-w-xs truncate"
-        dangerouslySetInnerHTML={{ __html: value || '-' }}
-      />
-    ),
-  },
-  {
-    key: 'created_at',
-    label: 'Applied',
-    render: (value) => (value ? new Date(value).toLocaleString() : '-'),
-  },
-];
+// Rendered as cards instead of table
 
 const ApplicationsList = () => {
   const dispatch = useDispatch();
   const { applications, isLoading } = useSelector((state: RootState) => state.applications);
   const user = useSelector((state: RootState) => state.auth.user);
 
-  if (user?.role === 'admin') {
+  if (user?.role === "admin") {
     return <JobApplicationsList jobId={null} />;
   }
 
@@ -62,12 +28,24 @@ const ApplicationsList = () => {
     const fetchApplications = async () => {
       let apps = [];
       try {
-        if (user?.role === 'admin') {
-          const res: any = await apiFetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:7600'}/api/applications`);
-          apps = res && res.success && Array.isArray(res.data) ? res.data : Array.isArray(res) ? res : [];
+        if (user?.role === "admin") {
+          const res: any = await apiFetch(
+            `${import.meta.env.VITE_BACKEND_URL || "http://localhost:7600"}/api/applications`
+          );
+          apps =
+            res && res.success && Array.isArray(res.data)
+              ? res.data
+              : Array.isArray(res)
+              ? res
+              : [];
         } else {
           const res: any = await fetchUserApplications();
-          apps = res && res.success && Array.isArray(res.data) ? res.data : Array.isArray(res) ? res : [];
+          apps =
+            res && res.success && Array.isArray(res.data)
+              ? res.data
+              : Array.isArray(res)
+              ? res
+              : [];
         }
         dispatch(setApplications(apps));
       } catch {
@@ -86,15 +64,119 @@ const ApplicationsList = () => {
       {applications.length === 0 && !isLoading ? (
         <div className="flex justify-center items-center h-64">
           <div className="bg-white rounded-xl shadow-lg p-8 flex flex-col items-center">
-            <svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-gray-300 mb-4">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2a4 4 0 018 0v2M9 17H7a2 2 0 01-2-2V7a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2h-2M9 17v2a2 2 0 002 2h2a2 2 0 002-2v-2" />
-            </svg>
+            <Building2 className="h-12 w-12 text-gray-300 mb-4" />
             <h2 className="text-lg font-semibold text-gray-700 mb-2">No applications found</h2>
             <p className="text-gray-500">You haven't applied to any jobs yet.</p>
+            <Link to="/">
+              <Button className="mt-4">Browse Jobs</Button>
+            </Link>
           </div>
         </div>
       ) : (
-        <ReusableTable columns={columns} data={applications} emptyMessage="No applications found." />
+        <div className="space-y-4">
+          {applications.map((app: any) => {
+            const jobTitle = app.jobTitle || app.job_title || "Untitled";
+            const company = app.company || app.company_name || "Unknown Company";
+            const appliedAt = app.appliedDate || app.created_at;
+            const status = app.status || "pending";
+            const jobId = app.jobId || app.job_id;
+            const location = app.location || app.job_location;
+            const cvLink = app.cvLink || app.cv_url;
+
+            const getStatusColor = (s: string) => {
+              switch (s) {
+                case "pending":
+                  return "bg-yellow-100 text-yellow-800 border-yellow-200";
+                case "reviewed":
+                  return "bg-blue-100 text-blue-800 border-blue-200";
+                case "accepted":
+                  return "bg-green-100 text-green-800 border-green-200";
+                case "rejected":
+                  return "bg-red-100 text-red-800 border-red-200";
+                default:
+                  return "bg-gray-100 text-gray-700 border-gray-200";
+              }
+            };
+
+            const getStatusIcon = (s: string) => {
+              switch (s) {
+                case "pending":
+                  return <Clock className="h-4 w-4" />;
+                case "reviewed":
+                  return <Users className="h-4 w-4" />;
+                case "accepted":
+                  return <CheckCircle className="h-4 w-4" />;
+                case "rejected":
+                  return <XCircle className="h-4 w-4" />;
+                default:
+                  return <Clock className="h-4 w-4" />;
+              }
+            };
+
+            return (
+              <Card key={app.id} className="bg-white shadow-sm hover:shadow-md transition-shadow">
+                <CardContent className="p-5">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-start gap-4">
+                      <div className="p-3 bg-blue-600 rounded-lg">
+                        <Building2 className="h-6 w-6 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900">{jobTitle}</h3>
+                        <p className="text-sm text-gray-600">{company}</p>
+                        <div className="flex items-center gap-3 mt-2 text-sm text-gray-500">
+                          {location && (
+                            <span className="inline-flex items-center gap-1">
+                              <MapPin className="h-4 w-4" /> {location}
+                            </span>
+                          )}
+                          {appliedAt && (
+                            <span className="inline-flex items-center gap-1">
+                              <Calendar className="h-4 w-4" />{" "}
+                              {new Date(appliedAt).toLocaleDateString()}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col items-end gap-2">
+                      <Badge className={`${getStatusColor(status)} border`}>
+                        <span className="inline-flex items-center gap-1">
+                          {getStatusIcon(status)} <span className="capitalize">{status}</span>
+                        </span>
+                      </Badge>
+                      <div className="flex items-center gap-2">
+                        {cvLink && (
+                          <a href={cvLink} target="_blank" rel="noopener noreferrer">
+                            <Button variant="outline" size="sm">
+                              View CV
+                            </Button>
+                          </a>
+                        )}
+                        {jobId && (
+                          <Link to={`/dashboard/jobs/${jobId}`}>
+                            <Button variant="outline" size="sm">
+                              <Eye className="mr-2 h-4 w-4" /> View Job
+                            </Button>
+                          </Link>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {app.cover_letter || app.coverLetter ? (
+                    <div className="mt-4 p-4 bg-gray-50 rounded-md text-sm text-gray-700">
+                      <div
+                        dangerouslySetInnerHTML={{ __html: app.cover_letter || app.coverLetter }}
+                      />
+                    </div>
+                  ) : null}
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
       )}
     </div>
   );

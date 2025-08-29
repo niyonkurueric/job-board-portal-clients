@@ -1,41 +1,27 @@
-import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '@/store/store';
-import { setJobs, setLoading } from '@/store/slices/jobsSlice';
-import SearchSection from '@/components/SearchSection';
-import JobCard from '@/components/JobCard';
-
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/store/store";
+import { fetchPublishedJobs } from "@/store/slices/jobsSlice";
+import SearchSection from "@/components/SearchSection";
+import JobCard from "@/components/JobCard";
 
 const Jobs = () => {
   const dispatch = useDispatch();
-  const { filteredJobs, isLoading, searchQuery, selectedLocation } = useSelector((state: RootState) => state?.jobs);
+  const { filteredJobs, isLoading, searchQuery, selectedLocation } = useSelector(
+    (state: RootState) => state?.jobs
+  );
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
-    const fetchData = async () => {
-      dispatch(setLoading(true));
-      try {
-        // Build query params for search and location
-        const params = new URLSearchParams();
-        params.append('page', String(page));
-        params.append('pageSize', '10');
-        if (searchQuery) params.append('title', searchQuery);
-        if (selectedLocation) params.append('location', selectedLocation);
-        const url = `/api/jobs?${params.toString()}`;
-        // Use backend URL from env
-        const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:7600';
-        const res = await fetch(`${backendUrl}${url}`);
-        const data = await res.json();
-        dispatch(setJobs(Array.isArray(data.data) ? data.data : []));
-        setTotalPages(data.totalPages || 1);
-      } catch (error) {
-        dispatch(setJobs([]));
-      } finally {
-        dispatch(setLoading(false));
-      }
-    };
-    fetchData();
+    dispatch(
+      fetchPublishedJobs({
+        page,
+        pageSize: 10,
+        search: searchQuery || undefined,
+        location: selectedLocation || undefined,
+      }) as any
+    );
   }, [dispatch, page, searchQuery, selectedLocation]);
 
   return (
@@ -46,7 +32,7 @@ const Jobs = () => {
           <div>
             <h2 className="text-3xl font-bold text-foreground">Available Jobs</h2>
             <p className="text-muted-foreground mt-2">
-              {filteredJobs?.length} job{filteredJobs?.length !== 1 ? 's' : ''} found
+              {filteredJobs?.length} job{filteredJobs?.length !== 1 ? "s" : ""} found
             </p>
           </div>
         </div>
@@ -82,7 +68,9 @@ const Jobs = () => {
           >
             Previous
           </button>
-          <span className="px-4 py-2 mx-1">Page {page} of {totalPages}</span>
+          <span className="px-4 py-2 mx-1">
+            Page {page} of {totalPages}
+          </span>
           <button
             className="px-4 py-2 mx-1 rounded bg-primary text-white disabled:opacity-50"
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}

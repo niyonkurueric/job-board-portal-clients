@@ -27,25 +27,26 @@ const CreateJobForm = ({ onSuccess, job }: CreateJobFormProps) => {
     location: job?.location || '',
     description: job?.description || '',
     deadline: (job && 'deadline' in job && job.deadline) ? new Date(job.deadline as string) : null,
+    status: job?.status || 'draft', // 👈 new field with default
   });
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formErrors, setFormErrors] = useState<Record<string, string | string[]>>({});
   const [calendarOpen, setCalendarOpen] = useState(false);
 
   const handleInputChange = (field: keyof typeof formData, value: string | Date | null) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-  } 
-  // For JoditEditor
+  };
+
   const handleDescriptionChange = (value: string) => {
     setFormData(prev => ({ ...prev, description: value }));
-  } 
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setFormErrors({});
 
-    // Validate with zod
     const result = jobSchema.safeParse(formData);
     if (!result.success) {
       const fieldErrors = result.error.formErrors.fieldErrors;
@@ -62,20 +63,18 @@ const CreateJobForm = ({ onSuccess, job }: CreateJobFormProps) => {
     try {
       let data;
       if (job && job.id) {
-        // Update job
         data = await updateJob(job.id, formData) as CreateJobResponse;
         toast({
           title: "Job Updated Successfully!",
           description: `${data?.title || formData.title} has been updated.`,
         });
       } else {
-        // Create job
         data = await createJob(formData) as CreateJobResponse;
         toast({
           title: "Job Created Successfully!",
           description: `${data?.title || formData.title} has been added to the job listings.`,
         });
-        setFormData({ title: '', company: '', location: '', description: '', deadline: null });
+        setFormData({ title: '', company: '', location: '', description: '', deadline: null, status: 'draft' });
       }
       onSuccess?.();
     } catch (error) {
@@ -97,91 +96,56 @@ const CreateJobForm = ({ onSuccess, job }: CreateJobFormProps) => {
             {job ? 'Edit Job' : 'Create New Job Posting'}
           </CardTitle>
         </CardHeader>
+
         <CardContent className="flex-1 overflow-y-auto custom-scrollbar p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* --- Title + Company --- */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="title" className="text-sm font-medium text-gray-700">
-                  Job Title *
-                </Label>
+                <Label htmlFor="title">Job Title *</Label>
                 <Input
                   id="title"
                   value={formData.title}
                   onChange={(e) => handleInputChange('title', e.target.value)}
                   placeholder="e.g. Senior Frontend Developer"
                   required
-                  aria-invalid={!!formErrors.title}
-                  className="transition-colors focus:ring-2 focus:ring-blue-500"
                 />
-                {formErrors.title && (
-                  <div className="text-xs text-red-500 mt-1">
-                    {Array.isArray(formErrors.title) ? formErrors.title[0] : formErrors.title}
-                  </div>
-                )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="company" className="text-sm font-medium text-gray-700">
-                  Company *
-                </Label>
+                <Label htmlFor="company">Company *</Label>
                 <Input
                   id="company"
                   value={formData.company}
                   onChange={(e) => handleInputChange('company', e.target.value)}
                   placeholder="e.g. TechCorp Inc."
                   required
-                  aria-invalid={!!formErrors.company}
-                  className="transition-colors focus:ring-2 focus:ring-blue-500"
                 />
-                {formErrors.company && (
-                  <div className="text-xs text-red-500 mt-1">
-                    {Array.isArray(formErrors.company) ? formErrors.company[0] : formErrors.company}
-                  </div>
-                )}
               </div>
             </div>
-            
+
+            {/* --- Location --- */}
             <div className="space-y-2">
-              <Label htmlFor="location" className="text-sm font-medium text-gray-700">
-                Location *
-              </Label>
+              <Label htmlFor="location">Location *</Label>
               <Input
                 id="location"
                 value={formData.location}
                 onChange={(e) => handleInputChange('location', e.target.value)}
                 placeholder="e.g. San Francisco, CA"
                 required
-                aria-invalid={!!formErrors.location}
-                className="transition-colors focus:ring-2 focus:ring-blue-500"
               />
-              {formErrors.location && (
-                <div className="text-xs text-red-500 mt-1">
-                  {Array.isArray(formErrors.location) ? formErrors.location[0] : formErrors.location}
-                </div>
-              )}
             </div>
-            
+
+            {/* --- Description --- */}
             <div className="space-y-2">
-              <Label htmlFor="description" className="text-sm font-medium text-gray-700">
-                Job Description *
-              </Label>
+              <Label htmlFor="description">Job Description *</Label>
               <div className="border rounded-lg overflow-hidden bg-white">
-                <JoditEditor
-                  value={formData.description}
-                  onChange={handleDescriptionChange}
-                  config={configStyles}
-                />
+                <JoditEditor value={formData.description} onChange={handleDescriptionChange} config={configStyles} />
               </div>
-              {formErrors.description && (
-                <div className="text-xs text-red-500 mt-1">
-                  {Array.isArray(formErrors.description) ? formErrors.description[0] : formErrors.description}
-                </div>
-              )}
             </div>
-            
+
+            {/* --- Deadline --- */}
             <div className="space-y-2">
-              <Label htmlFor="deadline" className="text-sm font-medium text-gray-700">
-                Job Deadline *
-              </Label>
+              <Label htmlFor="deadline">Job Deadline *</Label>
               <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
                 <PopoverTrigger asChild>
                   <Input
@@ -192,77 +156,50 @@ const CreateJobForm = ({ onSuccess, job }: CreateJobFormProps) => {
                     readOnly
                     placeholder="Select deadline date"
                     required
-                    className="cursor-pointer transition-colors focus:ring-2 focus:ring-blue-500"
                   />
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0 shadow-lg">
                   <Calendar
                     mode="single"
                     selected={formData.deadline}
-                    onSelect={date => {
+                    onSelect={(date) => {
                       handleInputChange('deadline', date);
                       setCalendarOpen(false);
                     }}
-                    initialFocus
                   />
                 </PopoverContent>
               </Popover>
-              {formErrors.deadline && (
-                <div className="text-xs text-red-500 mt-1">
-                  {Array.isArray(formErrors.deadline) ? formErrors.deadline[0] : formErrors.deadline}
-                </div>
-              )}
+            </div>
+
+            {/* --- Status --- */}
+            <div className="space-y-2">
+              <Label htmlFor="status">Status *</Label>
+              <select
+                id="status"
+                value={formData.status}
+                onChange={(e) => handleInputChange('status', e.target.value)}
+                className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="draft">Draft</option>
+                <option value="published">Published</option>
+              </select>
             </div>
           </form>
         </CardContent>
-        
-        {/* Fixed Footer with Submit Button */}
+
+        {/* --- Footer with Submit Button --- */}
         <div className="flex-shrink-0 border-t bg-gray-50 p-6 rounded-b-lg">
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             onClick={handleSubmit}
-            disabled={isSubmitting} 
-            className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 rounded-lg shadow-lg transition-all duration-200 transform hover:scale-105 disabled:transform-none disabled:opacity-50" 
+            disabled={isSubmitting}
+            className="w-full"
             size="lg"
           >
-            {isSubmitting ? (
-              <div className="flex items-center justify-center gap-2">
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                {job ? 'Updating Job...' : 'Creating Job...'}
-              </div>
-            ) : (
-              job ? 'Update Job' : 'Create Job Posting'
-            )}
+            {isSubmitting ? (job ? 'Updating Job...' : 'Creating Job...') : job ? 'Update Job' : 'Create Job Posting'}
           </Button>
         </div>
       </Card>
-      
-      {/* Custom Scrollbar Styles */}
-      <style>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 6px;
-        }
-        
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: #f1f5f9;
-          border-radius: 3px;
-        }
-        
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #cbd5e1;
-          border-radius: 3px;
-        }
-        
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #94a3b8;
-        }
-        
-        /* Firefox */
-        .custom-scrollbar {
-          scrollbar-width: thin;
-          scrollbar-color: #cbd5e1 #f1f5f9;
-        }
-      `}</style>
     </div>
   );
 };

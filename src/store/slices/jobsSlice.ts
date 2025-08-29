@@ -1,4 +1,5 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
+import { fetchPublishedJobs as fetchPublishedJobsApi } from '@/api/jobsApi';
 
 export interface Job {
   id: number;
@@ -8,6 +9,7 @@ export interface Job {
   description: string;
   created_at?: string;
   created_by?: number;
+  status: 'draft' | 'published';
 }
 
 interface JobsState {
@@ -68,6 +70,20 @@ const jobsSlice = createSlice({
       state.isLoading = action.payload;
     },
   },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchPublishedJobs.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(fetchPublishedJobs.fulfilled, (state, action: PayloadAction<Job[]>) => {
+        state.jobs = action.payload;
+        state.filteredJobs = action.payload;
+        state.isLoading = false;
+      })
+      .addCase(fetchPublishedJobs.rejected, (state) => {
+        state.isLoading = false;
+      });
+  },
 });
 
 export const {
@@ -81,3 +97,12 @@ export const {
 } = jobsSlice.actions;
 
 export default jobsSlice.reducer;
+
+export const fetchPublishedJobs = createAsyncThunk('jobs/fetchPublished', async ({ page = 1, pageSize = 10, search, location }: { page?: number; pageSize?: number; search?: string; location?: string } = {}) => {
+  const res = await fetchPublishedJobsApi(page, pageSize, { search, location });
+  // API may return either { success, data } or a raw array; normalize
+  if ((res as any)?.success && Array.isArray((res as any).data)) {
+    return (res as any).data as Job[];
+  }
+  return (res as any) as Job[];
+});

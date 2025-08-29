@@ -1,4 +1,6 @@
 // Reusable API fetch utility for all endpoints
+const BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:7600';
+
 export async function apiFetch<T>(url: string, options: RequestInit = {}, requireAuth = false): Promise<T> {
   // Always use a plain object for headers
   let headers: Record<string, string> = { 'Content-Type': 'application/json' };
@@ -19,7 +21,8 @@ export async function apiFetch<T>(url: string, options: RequestInit = {}, requir
   if (requireAuth && token) {
     headers['Authorization'] = `Bearer ${token}`;
   }
-  const res = await fetch(url, { ...options, headers });
+  const requestUrl = url.startsWith('http') ? url : `${BASE_URL}${url}`;
+  const res = await fetch(requestUrl, { ...options, headers });
   if ((res.status === 401 || res.status === 403) && requireAuth) {
     // Only redirect if user is currently authenticated
     if (localStorage.getItem('token')) {
@@ -35,7 +38,9 @@ export async function apiFetch<T>(url: string, options: RequestInit = {}, requir
       const err = await res.json();
       msg = err.message || msg;
     } catch {}
-    throw new Error(msg);
+    const error: any = new Error(msg);
+    error.status = res.status;
+    throw error;
   }
   return res.json();
 }

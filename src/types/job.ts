@@ -5,6 +5,7 @@ export type CreateJobFormData = {
   location: string;
   description: string;
   deadline: Date | null;
+  status: 'draft' | 'published';
 };
 
 export type CreateJobResponse = {
