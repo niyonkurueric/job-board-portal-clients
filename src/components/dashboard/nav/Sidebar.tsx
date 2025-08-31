@@ -1,35 +1,33 @@
-import React from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import {
-  LayoutDashboard, Briefcase, FileText, Users
-} from 'lucide-react';
+import React from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { LayoutDashboard, Briefcase, FileText, Users } from "lucide-react";
 
 // Optionally import a jobs icon if you want a different icon for jobs
 
-const Sidebar = ({ userType, isCollapsed}) => {
+const Sidebar = ({ userType, isCollapsed }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const adminLinks = [
-    { name: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
-    { name: 'Jobs', icon: Briefcase, href: '/dashboard/jobs' },
-    { name: 'Applications', icon: FileText, href: '/dashboard/applications' },
-    { name: 'Users', icon: Users, href: '/dashboard/users' },
+    { name: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
+    { name: "Jobs", icon: Briefcase, href: "/dashboard/jobs" },
+    { name: "Applications", icon: FileText, href: "/dashboard/applications" },
+    { name: "Users", icon: Users, href: "/dashboard/users" },
   ];
   const userLinks = [
-    { name: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
-    { name: 'Jobs', icon: Briefcase, href: '/dashboard/jobs' },
-    { name: 'My Applications', icon: FileText, href: '/dashboard/applications' },
+    { name: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
+    { name: "Jobs", icon: Briefcase, href: "/dashboard/jobs" },
+    { name: "My Applications", icon: FileText, href: "/dashboard/applications" },
   ];
 
-  const links = userType === 'admin' ? adminLinks : userLinks;
+  const links = userType === "admin" ? adminLinks : userLinks;
   return (
     <aside
       className={`${
-        isCollapsed ? 'w-20' : 'w-72'
-      } bg-[#222a5f] text-white h-screen flex flex-col transition-all duration-300 ease-in-out relative shadow-2xl`}
+        isCollapsed ? "w-20" : "w-72"
+      } bg-[#222a5f] text-white h-screen flex flex-col transition-all duration-300 ease-in-out fixed left-0 top-0 z-40 shadow-2xl`}
     >
       {/* Header */}
-      <div className="p-6 border-b border-slate-700">
+      <div className="p-6 border-b border-slate-700 flex-shrink-0">
         <div className="flex items-center justify-between">
           {!isCollapsed && (
             <div className="flex items-center space-x-3">
@@ -41,7 +39,7 @@ const Sidebar = ({ userType, isCollapsed}) => {
                   Job Board Portal
                 </h1>
                 <p className="text-xs text-slate-400">
-                  {userType === 'admin' ? 'Admin Portal' : 'User Portal'}
+                  {userType === "admin" ? "Admin Portal" : "User Portal"}
                 </p>
               </div>
             </div>
@@ -55,7 +53,7 @@ const Sidebar = ({ userType, isCollapsed}) => {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-2">
+      <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
         {links.map((link) => {
           const IconComponent = link.icon;
           // Only mark as active if the path matches exactly
@@ -66,15 +64,13 @@ const Sidebar = ({ userType, isCollapsed}) => {
               onClick={() => navigate(link.href)}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left transition-all duration-200 group ${
                 isActive
-                  ? 'bg-[#3aafef] text-white shadow-lg'
-                  : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
+                  ? "bg-[#3aafef] text-white shadow-lg"
+                  : "text-slate-300 hover:bg-slate-700/50 hover:text-white"
               }`}
             >
               <IconComponent
                 className={`w-5 h-5 ${
-                  isActive
-                    ? 'text-white'
-                    : 'text-slate-400 group-hover:text-white'
+                  isActive ? "text-white" : "text-slate-400 group-hover:text-white"
                 }`}
               />
               {!isCollapsed && <span className="font-medium">{link.name}</span>}

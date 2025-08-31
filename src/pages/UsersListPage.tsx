@@ -2,10 +2,9 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Users, Mail, User, CalendarDays } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '@/store/store';
-// import DataTable from '@/components/dashboard/DataTable';
 import { useEffect } from 'react';
 import { fetchUsers } from '@/store/slices/usersSlice';
-import DataTable from 'react-data-table-component';
+import ResponsiveDataTable from '@/components/common/ResponsiveDataTable';
 
 const UsersListPage = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -19,58 +18,95 @@ const UsersListPage = () => {
 
   const columns = [
     {
-      key: 'id',
       name: 'ID',
-      selector: (row) => (
-        <span className="flex items-center gap-2">
+      selector: (row: any) => row.id,
+      sortable: true,
+      cell: (row: any) => (
+        <div className="flex items-center gap-2">
           <User className="w-4 h-4 text-blue-500" />
-          {row?.id}
-        </span>
-      )
+          <span className="font-mono text-sm">{row?.id}</span>
+        </div>
+      ),
+      width: '10%',
     },
     {
-      key: 'name',
       name: 'Name',
-      selector: (row) => (
-        <span className="flex items-center gap-2">
+      selector: (row: any) => row.name,
+      sortable: true,
+      cell: (row: any) => (
+        <div className="flex items-center gap-2">
           <User className="w-4 h-4 text-blue-500" />
-          {row.name}
-        </span>
-      )
+          <span className="font-medium text-gray-900">{row.name}</span>
+        </div>
+      ),
+      width: '25%',
     },
     {
-      key: 'email',
       name: 'Email',
-      selector: (row) => (
-        <span className="flex items-center gap-2">
+      selector: (row: any) => row.email,
+      sortable: true,
+      cell: (row: any) => (
+        <div className="flex items-center gap-2">
           <Mail className="w-4 h-4 text-gray-500" />
-          {row.email}
-        </span>
-      )
+          <span className="text-gray-700">{row.email}</span>
+        </div>
+      ),
+      width: '30%',
     },
     {
-      key: 'role',
       name: 'Role',
-      selector: (row) => (
-        <span className="flex items-center gap-2">
-          <Mail className="w-4 h-4 text-gray-500" />
+      selector: (row: any) => row.role,
+      sortable: true,
+      cell: (row: any) => (
+        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+          row.role === 'admin' 
+            ? 'bg-purple-100 text-purple-800' 
+            : 'bg-blue-100 text-blue-800'
+        }`}>
           {row.role}
         </span>
-      )
+      ),
+      width: '15%',
     },
     {
-      key: 'created_at',
       name: 'Joined',
-      selector: (row) => (
-        <span className="flex items-center gap-2">
+      selector: (row: any) => row.created_at,
+      sortable: true,
+      cell: (row: any) => (
+        <div className="flex items-center gap-2">
           <CalendarDays className="w-4 h-4 text-gray-500" />
-          {row.created_at
-            ? new Date(row?.created_at).toLocaleDateString()
-            : '-'}
-        </span>
-      )
+          <span className="text-gray-600">
+            {row.created_at
+              ? new Date(row?.created_at).toLocaleDateString()
+              : '-'}
+          </span>
+        </div>
+      ),
+      width: '20%',
     }
   ];
+
+  const handleExport = () => {
+    // Export users to CSV
+    const csvContent = [
+      ['ID', 'Name', 'Email', 'Role', 'Joined Date'],
+      ...users.map(user => [
+        user.id || '',
+        user.name || '',
+        user.email || '',
+        user.role || '',
+        user.created_at ? new Date(user.created_at).toLocaleDateString() : ''
+      ])
+    ].map(row => row.map(field => `"${field}"`).join(',')).join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'users.csv';
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
@@ -79,35 +115,24 @@ const UsersListPage = () => {
           <Users className="w-8 h-8 text-blue-600" />
           All Users
         </h1>
-        <Card className="shadow-lg border-0 bg-white">
-          <CardHeader>
-            <CardTitle className="text-lg font-semibold text-gray-800">
-              User List
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <div className="text-center py-8 text-gray-500">
-                Loading users...
-              </div>
-            ) : error ? (
-              <div className="text-center py-8 text-red-500">{error}</div>
-            ) : users.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
-                No users found.
-              </div>
-            ) : (
-              <DataTable
-                columns={columns}
-                data={users}
-                pagination={true}
-                paginationPerPage={5}
-                fixedHeader={true}
-                actions={undefined}
-              />
-            )}
-          </CardContent>
-        </Card>
+        
+        {error ? (
+          <div className="text-center py-8 text-red-500 bg-red-50 rounded-lg">
+            {error}
+          </div>
+        ) : (
+          <ResponsiveDataTable
+            columns={columns}
+            data={users}
+            title="Users"
+            searchable={true}
+            pagination={true}
+            selectableRows={false}
+            loading={loading}
+            exportable={true}
+            onExport={handleExport}
+          />
+        )}
       </div>
     </div>
   );

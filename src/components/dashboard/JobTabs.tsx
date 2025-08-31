@@ -1,12 +1,22 @@
-import React, { useState, useRef } from 'react';
-import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from '@/components/ui/alert-dialog';
-import JobsListWithSearch from './JobsListWithSearch';
-import { useNavigate } from 'react-router-dom';
-import CreateJobForm from '../CreateJobForm';
-import { AppModal } from '../common/AppModal';
-import { deleteJob } from '@/api/jobsApi';
+import React, { useState, useRef } from "react";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
+import JobsListWithSearch from "./JobsListWithSearch";
+import { useNavigate } from "react-router-dom";
+import CreateJobForm from "../CreateJobForm";
+import { AppModal } from "../common/AppModal";
+import { deleteJob } from "@/api/jobsApi";
+import { useToast } from "@/hooks/use-toast";
 
 const JobTabs = ({ jobs, onCreate, onEdit = undefined, onDelete, userRole }) => {
+  const { toast } = useToast();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editJob, setEditJob] = useState(null);
@@ -26,11 +36,12 @@ const JobTabs = ({ jobs, onCreate, onEdit = undefined, onDelete, userRole }) => 
   const jobsListRef = useRef(null);
   const [pendingDeleteJob, setPendingDeleteJob] = useState(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleJobCreated = () => {
     setShowCreateModal(false);
     // Call reload on JobsListWithSearch
-    if (jobsListRef.current && typeof jobsListRef.current.reload === 'function') {
+    if (jobsListRef.current && typeof jobsListRef.current.reload === "function") {
       jobsListRef.current.reload();
     }
   };
@@ -43,12 +54,28 @@ const JobTabs = ({ jobs, onCreate, onEdit = undefined, onDelete, userRole }) => 
 
   const confirmDeleteJob = async () => {
     if (pendingDeleteJob) {
-      await deleteJob(pendingDeleteJob.id);
-      setShowDeleteDialog(false);
-      setPendingDeleteJob(null);
-      // Reload job list
-      if (jobsListRef.current && typeof jobsListRef.current.reload === 'function') {
-        jobsListRef.current.reload();
+      setIsDeleting(true);
+      try {
+        await deleteJob(pendingDeleteJob.id);
+        toast({
+          title: "Job Deleted Successfully!",
+          description: `${pendingDeleteJob.title} has been removed from the job listings.`,
+        });
+        setShowDeleteDialog(false);
+        setPendingDeleteJob(null);
+        // Reload job list
+        if (jobsListRef.current && typeof jobsListRef.current.reload === "function") {
+          jobsListRef.current.reload();
+        }
+      } catch (error) {
+        console.error("Delete job error:", error);
+        toast({
+          title: "Error Deleting Job",
+          description: error?.message || "Failed to delete the job. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsDeleting(false);
       }
     }
   };
@@ -61,7 +88,7 @@ const JobTabs = ({ jobs, onCreate, onEdit = undefined, onDelete, userRole }) => 
         <h4 className="text-lg font-semibold text-gray-800">Job List</h4>
         {onCreate && (
           <button
-            className="px-4 py-2 rounded-sm font-medium bg-[#3aafef] text-white hover:bg-[ #1a81b8ff] transition"
+            className="px-4 py-2 rounded-sm font-medium bg-[#3aafef] text-white hover:bg-[#1a81b8ff] transition"
             onClick={() => setShowCreateModal(true)}
           >
             + Create Job
@@ -70,18 +97,14 @@ const JobTabs = ({ jobs, onCreate, onEdit = undefined, onDelete, userRole }) => 
       </div>
       <JobsListWithSearch
         ref={jobsListRef}
-        onEdit={userRole === 'admin' ? handleEditJob : undefined}
-        onDelete={userRole === 'admin' ? handleDeleteJob : undefined}
+        onEdit={userRole === "admin" ? handleEditJob : undefined}
+        onDelete={userRole === "admin" ? handleDeleteJob : undefined}
         onView={handleViewJob}
         userRole={userRole}
       />
       {/* Modal for creating job (admin only) */}
       {onCreate && (
-        <AppModal
-          open={showCreateModal}
-          onOpenChange={setShowCreateModal}
-          title="Job Posting"
-        >
+        <AppModal open={showCreateModal} onOpenChange={setShowCreateModal} title="Job Posting">
           <CreateJobForm onSuccess={handleJobCreated} />
         </AppModal>
       )}
@@ -92,31 +115,28 @@ const JobTabs = ({ jobs, onCreate, onEdit = undefined, onDelete, userRole }) => 
           onOpenChange={setShowEditModal}
           title="Edit Job"
         >
-          <CreateJobForm
-            onSuccess={() => setShowEditModal(false)}
-            job={editJob}
-          />
+          <CreateJobForm onSuccess={() => setShowEditModal(false)} job={editJob} />
         </AppModal>
       )}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>
-              Are you sure you want to delete this job?
-            </AlertDialogTitle>
+            <AlertDialogTitle>Are you sure you want to delete this job?</AlertDialogTitle>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel
               onClick={() => setShowDeleteDialog(false)}
               className="hover:bg-gray-400"
+              disabled={isDeleting}
             >
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDeleteJob}
-              className="bg-red-500 text-white hover:bg-red-600"
+              className="bg-red-500 text-white hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={isDeleting}
             >
-              Yes, Delete
+              {isDeleting ? "Deleting..." : "Yes, Delete"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

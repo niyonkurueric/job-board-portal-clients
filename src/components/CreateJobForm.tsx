@@ -1,21 +1,17 @@
-import { useState } from 'react';
-import { jobSchema } from '@/schema/jobSchema';
-import type { CreateJobFormData, CreateJobResponse } from '@/types/job';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import JoditEditor from 'jodit-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useToast } from '@/hooks/use-toast';
-import { Job } from '@/store/slices/jobsSlice';
-import { createJob, updateJob } from '@/api/jobsApi';
-import configStyles from './common/configuration';
-import { Calendar } from '@/components/ui/calendar';
-import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent
-} from '@/components/ui/popover';
+import { useState } from "react";
+import { jobSchema } from "@/schema/jobSchema";
+import type { CreateJobFormData, CreateJobResponse } from "@/types/job";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import JoditEditor from "jodit-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import { Job } from "@/store/slices/jobsSlice";
+import { createJob, updateJob } from "@/api/jobsApi";
+import configStyles from "./common/configuration";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 
 interface CreateJobFormProps {
   onSuccess?: () => void;
@@ -26,27 +22,19 @@ const CreateJobForm = ({ onSuccess, job }: CreateJobFormProps) => {
   const { toast } = useToast();
 
   const [formData, setFormData] = useState<CreateJobFormData>({
-    title: job?.title || '',
-    company: job?.company || '',
-    location: job?.location || '',
-    description: job?.description || '',
-    deadline:
-      job && 'deadline' in job && job.deadline
-        ? new Date(job.deadline as string)
-        : null,
-    status: job?.status || 'draft' // 👈 new field with default
+    title: job?.title || "",
+    company: job?.company || "",
+    location: job?.location || "",
+    description: job?.description || "",
+    deadline: job && "deadline" in job && job.deadline ? new Date(job.deadline as string) : null,
+    status: job?.status || "draft", // 👈 new field with default
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formErrors, setFormErrors] = useState<
-    Record<string, string | string[]>
-  >({});
+  const [formErrors, setFormErrors] = useState<Record<string, string | string[]>>({});
   const [calendarOpen, setCalendarOpen] = useState(false);
 
-  const handleInputChange = (
-    field: keyof typeof formData,
-    value: string | Date | null
-  ) => {
+  const handleInputChange = (field: keyof typeof formData, value: string | Date | null) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -64,9 +52,9 @@ const CreateJobForm = ({ onSuccess, job }: CreateJobFormProps) => {
       const fieldErrors = result.error.formErrors.fieldErrors;
       setFormErrors(fieldErrors);
       toast({
-        title: 'Validation Error',
-        description: Object.values(fieldErrors).flat().join(' '),
-        variant: 'destructive'
+        title: "Validation Error",
+        description: Object.values(fieldErrors).flat().join(" "),
+        variant: "destructive",
       });
       setIsSubmitting(false);
       return;
@@ -77,32 +65,50 @@ const CreateJobForm = ({ onSuccess, job }: CreateJobFormProps) => {
       if (job && job.id) {
         data = (await updateJob(job.id, formData)) as CreateJobResponse;
         toast({
-          title: 'Job Updated Successfully!',
-          description: `${data?.title || formData.title} has been updated.`
+          title: "Job Updated Successfully!",
+          description: `${data?.title || formData.title} has been updated.`,
         });
       } else {
         data = (await createJob(formData)) as CreateJobResponse;
         toast({
-          title: 'Job Created Successfully!',
-          description: `${
-            data?.title || formData.title
-          } has been added to the job listings.`
+          title: "Job Created Successfully!",
+          description: `${data?.title || formData.title} has been added to the job listings.`,
         });
         setFormData({
-          title: '',
-          company: '',
-          location: '',
-          description: '',
+          title: "",
+          company: "",
+          location: "",
+          description: "",
           deadline: null,
-          status: 'draft'
+          status: "draft",
         });
       }
       onSuccess?.();
-    } catch (error) {
+    } catch (error: any) {
+      console.error("Job operation error:", error);
+      let errorMessage = "Something went wrong. Please try again.";
+
+      // Handle specific error cases
+      if (error?.status === 400) {
+        errorMessage = "Invalid data provided. Please check your input.";
+      } else if (error?.status === 401) {
+        errorMessage = "You are not authorized to perform this action.";
+      } else if (error?.status === 403) {
+        errorMessage = "Access denied. You do not have permission for this operation.";
+      } else if (error?.status === 409) {
+        errorMessage = "A job with this title already exists. Please use a different title.";
+      } else if (error?.status === 422) {
+        errorMessage = "Validation failed. Please check your input data.";
+      } else if (error?.status >= 500) {
+        errorMessage = "Server error. Please try again later.";
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+
       toast({
-        title: job && job.id ? 'Error Updating Job' : 'Error Creating Job',
-        description: 'Something went wrong. Please try again.',
-        variant: 'destructive'
+        title: job && job.id ? "Error Updating Job" : "Error Creating Job",
+        description: errorMessage,
+        variant: "destructive",
       });
     } finally {
       setIsSubmitting(false);
@@ -114,7 +120,7 @@ const CreateJobForm = ({ onSuccess, job }: CreateJobFormProps) => {
       <Card className="bg-gradient-card w-full max-w-2xl min-w-[400px] max-h-[80vh] flex flex-col shadow-xl">
         <CardHeader className="flex-shrink-0 border-b bg-white rounded-t-lg">
           <CardTitle className="text-xl font-semibold text-gray-800">
-            {job ? 'Edit Job' : 'Create New Job Posting'}
+            {job ? "Edit Job" : "Create New Job Posting"}
           </CardTitle>
         </CardHeader>
 
@@ -129,7 +135,7 @@ const CreateJobForm = ({ onSuccess, job }: CreateJobFormProps) => {
                 <Input
                   id="title"
                   value={formData.title}
-                  onChange={(e) => handleInputChange('title', e.target.value)}
+                  onChange={(e) => handleInputChange("title", e.target.value)}
                   placeholder="e.g. Senior Frontend Developer"
                   required
                 />
@@ -141,7 +147,7 @@ const CreateJobForm = ({ onSuccess, job }: CreateJobFormProps) => {
                 <Input
                   id="company"
                   value={formData.company}
-                  onChange={(e) => handleInputChange('company', e.target.value)}
+                  onChange={(e) => handleInputChange("company", e.target.value)}
                   placeholder="e.g. TechCorp Inc."
                   required
                 />
@@ -156,7 +162,7 @@ const CreateJobForm = ({ onSuccess, job }: CreateJobFormProps) => {
               <Input
                 id="location"
                 value={formData.location}
-                onChange={(e) => handleInputChange('location', e.target.value)}
+                onChange={(e) => handleInputChange("location", e.target.value)}
                 placeholder="e.g. San Francisco, CA"
                 required
               />
@@ -186,11 +192,7 @@ const CreateJobForm = ({ onSuccess, job }: CreateJobFormProps) => {
                   <Input
                     id="deadline"
                     type="text"
-                    value={
-                      formData.deadline
-                        ? formData.deadline.toLocaleDateString()
-                        : ''
-                    }
+                    value={formData.deadline ? formData.deadline.toLocaleDateString() : ""}
                     onClick={() => setCalendarOpen(true)}
                     readOnly
                     placeholder="Select deadline date"
@@ -202,7 +204,7 @@ const CreateJobForm = ({ onSuccess, job }: CreateJobFormProps) => {
                     mode="single"
                     selected={formData.deadline}
                     onSelect={(date) => {
-                      handleInputChange('deadline', date);
+                      handleInputChange("deadline", date);
                       setCalendarOpen(false);
                     }}
                   />
@@ -218,7 +220,7 @@ const CreateJobForm = ({ onSuccess, job }: CreateJobFormProps) => {
               <select
                 id="status"
                 value={formData.status}
-                onChange={(e) => handleInputChange('status', e.target.value)}
+                onChange={(e) => handleInputChange("status", e.target.value)}
                 className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
               >
                 <option value="draft">Draft</option>
@@ -239,11 +241,11 @@ const CreateJobForm = ({ onSuccess, job }: CreateJobFormProps) => {
           >
             {isSubmitting
               ? job
-                ? 'Updating Job...'
-                : 'Creating Job...'
+                ? "Updating Job..."
+                : "Creating Job..."
               : job
-              ? 'Update Job'
-              : 'Create Job Posting'}
+              ? "Update Job"
+              : "Create Job Posting"}
           </Button>
         </div>
       </Card>

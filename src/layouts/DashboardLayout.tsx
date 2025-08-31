@@ -21,11 +21,12 @@ const DashboardLayout = () => {
   if (!user) return null;
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <Sidebar
-        userType={user.role === 'admin' ? 'admin' : 'user'}
-        isCollapsed={sidebarCollapsed}
-      />
-      <div className="flex-1 flex flex-col min-w-0">
+      <Sidebar userType={user.role === "admin" ? "admin" : "user"} isCollapsed={sidebarCollapsed} />
+      <div
+        className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ease-in-out ${
+          sidebarCollapsed ? "ml-20" : "ml-72"
+        }`}
+      >
         <Topbar
           onSidebarToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
           isCollapsed={sidebarCollapsed}

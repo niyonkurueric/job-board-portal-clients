@@ -1,44 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import { AppModal } from '@/components/common/AppModal';
-import ReusableTable from '@/components/common/ReusableTable';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '@/store/store';
-import { fetchAdminApplications } from '@/api/applicationsApi';
-import { setApplications, setLoading } from '@/store/slices/applicationsSlice';
-
-const columns = [
-  { key: 'title', label: 'Job Title', render: (value) => value || '-' },
-  { key: 'company', label: 'Company name', render: (value) => value || '-' },
-  {
-    key: 'location',
-    label: 'Location',
-    render: (value) => (
-      <span
-        className="max-w-xs truncate"
-        dangerouslySetInnerHTML={{ __html: value || '-' }}
-      />
-    )
-  },
-  {
-    key: 'deadline',
-    label: 'Application Deadline',
-    render: (value) => (value ? new Date(value).toLocaleString() : '-')
-  },
-  {
-    key: 'totalApplicants',
-    label: 'Total Applications',
-    render: (value) => (value ? value : 0)
-  }
-];
+import React, { useEffect, useState } from "react";
+import { AppModal } from "@/components/common/AppModal";
+import ResponsiveDataTable from "@/components/common/ResponsiveDataTable";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/store/store";
+import { fetchAdminApplications } from "@/api/applicationsApi";
+import { setApplications, setLoading } from "@/store/slices/applicationsSlice";
+import { Eye } from "lucide-react";
 
 const JobApplicationsList = ({ jobId }) => {
   const dispatch = useDispatch();
-  const { applications, isLoading } = useSelector(
-    (state: RootState) => state.applications
-  );
+  const { applications, isLoading } = useSelector((state: RootState) => state.applications);
   const [deleteId, setDeleteId] = useState(null);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [viewJob, setViewJob] = useState(null); // job object to view applications
+  const [viewJob, setViewJob] = useState(null);
 
   useEffect(() => {
     dispatch(setLoading(true));
@@ -60,11 +34,8 @@ const JobApplicationsList = ({ jobId }) => {
   };
 
   const confirmDelete = async () => {
-    // TODO: Replace with your delete API and Redux logic
-    // await dispatch(deleteApplication(deleteId));
     setShowConfirm(false);
     setDeleteId(null);
-    // Optionally, refetch applications after delete
     dispatch(setLoading(true));
     fetchAdminApplications()
       .then((apps) => {
@@ -78,58 +49,88 @@ const JobApplicationsList = ({ jobId }) => {
       });
   };
 
-  const columnsWithActions = [
-    ...columns,
+  // Transform columns for react-data-table-component
+  const columns = [
     {
-      key: 'view',
-      label: 'View details',
-      render: (_, row) => (
+      name: "Job Title",
+      selector: (row: any) => row.title || row.jobTitle || "-",
+      sortable: true,
+      cell: (row: any) => (
+        <div className="font-medium text-gray-900">{row.title || row.jobTitle || "-"}</div>
+      ),
+      width: "25%",
+    },
+    {
+      name: "Company",
+      selector: (row: any) => row.company || row.company_name || "-",
+      sortable: true,
+      cell: (row: any) => (
+        <div className="text-gray-700">{row.company || row.company_name || "-"}</div>
+      ),
+      width: "20%",
+    },
+    {
+      name: "Location",
+      selector: (row: any) => row.location || row.job_location || "-",
+      sortable: true,
+      cell: (row: any) => (
+        <div className="text-gray-600 max-w-xs truncate">
+          {row.location || row.job_location || "-"}
+        </div>
+      ),
+      width: "20%",
+    },
+    {
+      name: "Applications",
+      selector: (row: any) => row.totalApplicants || row.applications_count || 0,
+      sortable: true,
+      cell: (row: any) => (
+        <div className="font-medium text-gray-700">
+          {row.totalApplicants || row.applications_count || 0}
+        </div>
+      ),
+      width: "15%",
+    },
+    {
+      name: "Actions",
+      selector: () => null,
+      sortable: false,
+      cell: (row: any) => (
         <button
-          className="px-3 py-1 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600"
+          className="px-3 py-2 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 transition-colors flex items-center gap-2"
           onClick={() => setViewJob(row)}
         >
-          View
+          <Eye className="h-4 w-4" />
+          <span className="hidden sm:inline">View</span>
         </button>
-      )
-    }
-    // {
-    //   key: 'delete',
-    //   label: 'Number of applicants',
-    //   render: (_, row) => (
-    //     <button
-    //       className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-    //       onClick={() => handleDelete(row.id)}
-    //     >
-    //       Delete
-    //     </button>
-    //   )
-    // }
+      ),
+      width: "20%",
+    },
   ];
 
   return (
     <div className="w-full">
       <h2 className="text-xl font-bold mb-4">Applications for this Job</h2>
-      {isLoading && <div>Loading...</div>}
-      <ReusableTable
-        columns={columnsWithActions}
+
+      <ResponsiveDataTable
+        columns={columns}
         data={applications}
-        emptyMessage="No applications found for this job."
+        title="Job Applications"
+        searchable={true}
+        pagination={true}
+        selectableRows={false}
+        loading={isLoading}
+        exportable={false}
       />
+
       {showConfirm && (
-        <AppModal
-          open={showConfirm}
-          onOpenChange={setShowConfirm}
-          title="Delete Application"
-        >
+        <AppModal open={showConfirm} onOpenChange={setShowConfirm} title="Delete Application">
           <div className="p-4 min-w-[300px]">
             <h3 className="text-lg font-bold mb-4">
               Are you sure you want to delete this application?
             </h3>
             <div className="flex gap-4">
-              <button
-                className="px-4 py-2 bg-red-500 text-white rounded"
-                onClick={confirmDelete}
-              >
+              <button className="px-4 py-2 bg-red-500 text-white rounded" onClick={confirmDelete}>
                 Yes, Delete
               </button>
               <button
@@ -143,36 +144,21 @@ const JobApplicationsList = ({ jobId }) => {
         </AppModal>
       )}
 
-      {/* Modal for viewing user applications only, using AppModal */}
+      {/* Modal for viewing user applications */}
       {viewJob && (
-        <AppModal
-          open={!!viewJob}
-          onOpenChange={setViewJob}
-          title="User Applications"
-        >
+        <AppModal open={!!viewJob} onOpenChange={setViewJob} title="User Applications">
           <div className="max-h-[70vh] overflow-y-auto">
-            {Array.isArray(viewJob.applications) &&
-            viewJob.applications.length > 0 ? (
+            {Array.isArray(viewJob.applications) && viewJob.applications.length > 0 ? (
               <div className="space-y-6">
                 {viewJob.applications.map((app, idx) => (
-                  <div
-                    key={app.id || idx}
-                    className="border rounded-lg p-4 bg-gray-50"
-                  >
-                    <div className="font-semibold text-base mb-2">
-                      {app.applicant_name || '-'}
+                  <div key={app.id || idx} className="border rounded-lg p-4 bg-gray-50">
+                    <div className="font-semibold text-base mb-2">{app.applicant_name || "-"}</div>
+                    <div className="text-sm text-gray-700 mb-1">Email: {app.applicant || "-"}</div>
+                    <div className="text-sm text-gray-700 mb-1">
+                      Applied At: {app.created_at ? new Date(app.created_at).toLocaleString() : "-"}
                     </div>
                     <div className="text-sm text-gray-700 mb-1">
-                      Email: {app.applicant || '-'}
-                    </div>
-                    <div className="text-sm text-gray-700 mb-1">
-                      Applied At:{' '}
-                      {app.created_at
-                        ? new Date(app.created_at).toLocaleString()
-                        : '-'}
-                    </div>
-                    <div className="text-sm text-gray-700 mb-1">
-                      CV:{' '}
+                      CV:{" "}
                       {app.cv_url ? (
                         <a
                           href={app.cv_url}
@@ -183,7 +169,7 @@ const JobApplicationsList = ({ jobId }) => {
                           View CV
                         </a>
                       ) : (
-                        '-'
+                        "-"
                       )}
                     </div>
                     <div className="mt-2">
@@ -191,7 +177,7 @@ const JobApplicationsList = ({ jobId }) => {
                       <div
                         className="prose max-w-full"
                         dangerouslySetInnerHTML={{
-                          __html: app.cover_letter || '-'
+                          __html: app.cover_letter || "-",
                         }}
                       />
                     </div>
@@ -199,9 +185,7 @@ const JobApplicationsList = ({ jobId }) => {
                 ))}
               </div>
             ) : (
-              <div className="text-gray-500">
-                No user applications found for this job.
-              </div>
+              <div className="text-gray-500">No user applications found for this job.</div>
             )}
           </div>
         </AppModal>
