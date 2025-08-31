@@ -30,11 +30,13 @@ const JobCard = ({ job }: JobCardProps) => {
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <Building2 className="h-6 w-6 text-white" />
+            <div className="w-12 h-12 bg-transparent rounded-lg flex items-center justify-center">
+              <Building2 className="h-6 w-6 text-[#222a5f]" />
             </div>
             <div>
-              <h3 className="font-semibold text-lg text-foreground">{job.title}</h3>
+              <h3 className="font-semibold text-lg text-foreground">
+                {job.title}
+              </h3>
               <p className="text-muted-foreground font-medium">{job.company}</p>
             </div>
           </div>
@@ -53,10 +55,13 @@ const JobCard = ({ job }: JobCardProps) => {
             </div>
           )}
         </div>
-       
+
         <Link to={`/job/${job.id}`}>
-          <Button size="sm" className="w-full mt-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded shadow">
-            View Details
+          <Button
+            size="sm"
+            className="w-full mt-2 bg-[#3aafef] hover:bg-[ #358cbbff] text-white font-semibold rounded-sm"
+          >
+            Apply
           </Button>
         </Link>
       </CardContent>

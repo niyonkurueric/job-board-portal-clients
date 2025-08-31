@@ -30,9 +30,12 @@ const Jobs = () => {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h2 className="text-3xl font-bold text-foreground">Available Jobs</h2>
+            <h2 className="text-3xl font-bold text-foreground">
+              Available Jobs
+            </h2>
             <p className="text-muted-foreground mt-2">
-              {filteredJobs?.length} job{filteredJobs?.length !== 1 ? "s" : ""} found
+              {filteredJobs?.length} job{filteredJobs?.length !== 1 ? 's' : ''}{' '}
+              found
             </p>
           </div>
         </div>
@@ -55,24 +58,30 @@ const Jobs = () => {
 
         {!isLoading && filteredJobs?.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-muted-foreground text-lg">No jobs found matching your criteria.</p>
+            <p className="text-muted-foreground text-lg">
+              No jobs found matching your criteria.
+            </p>
           </div>
         )}
 
         {/* Pagination Controls */}
         <div className="flex justify-center mt-8">
           <button
-            className="px-4 py-2 mx-1 rounded bg-primary text-white disabled:opacity-50"
+            className="px-4 py-2 mx-1 rounded-full bg-[#3aafef] text-white 
+           hover:bg-[#0a7fbd] 
+           cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
           >
-            Previous
+            Prev
           </button>
           <span className="px-4 py-2 mx-1">
             Page {page} of {totalPages}
           </span>
           <button
-            className="px-4 py-2 mx-1 rounded bg-primary text-white disabled:opacity-50"
+            className="px-4 py-2 mx-1 rounded-full bg-[#3aafef] text-white 
+           hover:bg-[#0a7fbd] 
+           cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page === totalPages}
           >

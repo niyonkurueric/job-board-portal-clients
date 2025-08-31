@@ -175,7 +175,7 @@ const JobDetails = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
         {/* Hero Section */}
-        <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 text-white">
+        <div className="bg-gradient-to-r from-[#222a5f] via-[#222a5f] text-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
               <div className="flex-1">
@@ -194,7 +194,10 @@ const JobDetails = () => {
                   {selectedJob.created_at && (
                     <div className="flex items-center gap-2">
                       <CalendarDays className="w-5 h-5" />
-                      <span>Posted {new Date(selectedJob.created_at).toLocaleDateString()}</span>
+                      <span>
+                        Posted{' '}
+                        {new Date(selectedJob.created_at).toLocaleDateString()}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -205,15 +208,19 @@ const JobDetails = () => {
                 <Card className="shadow-2xl border-0 bg-white/95 backdrop-blur">
                   <CardContent className="p-6">
                     <div className="text-center mb-6">
-                      <h3 className="text-xl font-semibold text-gray-800 mb-2">Ready to Apply?</h3>
-                      <p className="text-gray-600 text-sm">Join our team and make an impact</p>
+                      <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                        Ready to Apply?
+                      </h3>
+                      <p className="text-gray-600 text-sm">
+                        Join our team and make an impact
+                      </p>
                     </div>
                     {isAuthenticated && !hasApplied && (
                       <Button
                         onClick={() => {
                           if (!isAuthenticated) {
-                            navigate("/login", {
-                              state: { fromApply: true, jobId: selectedJob.id },
+                            navigate('/login', {
+                              state: { fromApply: true, jobId: selectedJob.id }
                             });
                           } else {
                             navigate(`/dashboard/jobs/${selectedJob.id}/apply`);
@@ -233,12 +240,12 @@ const JobDetails = () => {
                     {!isAuthenticated && (
                       <Button
                         onClick={() =>
-                          navigate("/login", {
-                            state: { fromApply: true, jobId: selectedJob.id },
+                          navigate('/login', {
+                            state: { fromApply: true, jobId: selectedJob.id }
                           })
                         }
                         variant="outline"
-                        className="w-full mt-2"
+                        className="w-full hover:bg-[#3aafef]"
                       >
                         Sign in to Apply
                       </Button>
@@ -268,7 +275,8 @@ const JobDetails = () => {
                       className="text-gray-700 leading-relaxed whitespace-pre-line text-base space-y-4"
                       dangerouslySetInnerHTML={{
                         __html:
-                          selectedJob.description || "No description available for this position.",
+                          selectedJob.description ||
+                          'No description available for this position.'
                       }}
                     />
                   </div>
@@ -307,7 +315,9 @@ const JobDetails = () => {
                         <div>
                           <p className="text-sm text-gray-500">Posted</p>
                           <p className="font-medium">
-                            {new Date(selectedJob.created_at).toLocaleDateString()}
+                            {new Date(
+                              selectedJob.created_at
+                            ).toLocaleDateString()}
                           </p>
                         </div>
                       </div>
@@ -319,7 +329,9 @@ const JobDetails = () => {
                       <User className="w-4 h-4 text-gray-500" />
                       <div>
                         <p className="text-sm text-gray-500">Created by</p>
-                        <p className="font-medium text-xs">User ID: {selectedJob.created_by}</p>
+                        <p className="font-medium text-xs">
+                          User ID: {selectedJob.created_by}
+                        </p>
                       </div>
                     </div>
                   )}
@@ -336,8 +348,10 @@ const JobDetails = () => {
                 <CardContent>
                   <Button
                     variant="outline"
-                    className="w-full"
-                    onClick={() => navigator.clipboard.writeText(window.location.href)}
+                    className="w-full hover:bg-[#3aafef]"
+                    onClick={() =>
+                      navigator.clipboard.writeText(window.location.href)
+                    }
                   >
                     <ExternalLink className="w-4 h-4 mr-2" />
                     Copy Link

@@ -11,7 +11,11 @@ import { Job } from '@/store/slices/jobsSlice';
 import { createJob, updateJob } from '@/api/jobsApi';
 import configStyles from './common/configuration';
 import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent
+} from '@/components/ui/popover';
 
 interface CreateJobFormProps {
   onSuccess?: () => void;
@@ -26,20 +30,28 @@ const CreateJobForm = ({ onSuccess, job }: CreateJobFormProps) => {
     company: job?.company || '',
     location: job?.location || '',
     description: job?.description || '',
-    deadline: (job && 'deadline' in job && job.deadline) ? new Date(job.deadline as string) : null,
-    status: job?.status || 'draft', // 👈 new field with default
+    deadline:
+      job && 'deadline' in job && job.deadline
+        ? new Date(job.deadline as string)
+        : null,
+    status: job?.status || 'draft' // 👈 new field with default
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formErrors, setFormErrors] = useState<Record<string, string | string[]>>({});
+  const [formErrors, setFormErrors] = useState<
+    Record<string, string | string[]>
+  >({});
   const [calendarOpen, setCalendarOpen] = useState(false);
 
-  const handleInputChange = (field: keyof typeof formData, value: string | Date | null) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const handleInputChange = (
+    field: keyof typeof formData,
+    value: string | Date | null
+  ) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleDescriptionChange = (value: string) => {
-    setFormData(prev => ({ ...prev, description: value }));
+    setFormData((prev) => ({ ...prev, description: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -52,9 +64,9 @@ const CreateJobForm = ({ onSuccess, job }: CreateJobFormProps) => {
       const fieldErrors = result.error.formErrors.fieldErrors;
       setFormErrors(fieldErrors);
       toast({
-        title: "Validation Error",
+        title: 'Validation Error',
         description: Object.values(fieldErrors).flat().join(' '),
-        variant: "destructive",
+        variant: 'destructive'
       });
       setIsSubmitting(false);
       return;
@@ -63,25 +75,34 @@ const CreateJobForm = ({ onSuccess, job }: CreateJobFormProps) => {
     try {
       let data;
       if (job && job.id) {
-        data = await updateJob(job.id, formData) as CreateJobResponse;
+        data = (await updateJob(job.id, formData)) as CreateJobResponse;
         toast({
-          title: "Job Updated Successfully!",
-          description: `${data?.title || formData.title} has been updated.`,
+          title: 'Job Updated Successfully!',
+          description: `${data?.title || formData.title} has been updated.`
         });
       } else {
-        data = await createJob(formData) as CreateJobResponse;
+        data = (await createJob(formData)) as CreateJobResponse;
         toast({
-          title: "Job Created Successfully!",
-          description: `${data?.title || formData.title} has been added to the job listings.`,
+          title: 'Job Created Successfully!',
+          description: `${
+            data?.title || formData.title
+          } has been added to the job listings.`
         });
-        setFormData({ title: '', company: '', location: '', description: '', deadline: null, status: 'draft' });
+        setFormData({
+          title: '',
+          company: '',
+          location: '',
+          description: '',
+          deadline: null,
+          status: 'draft'
+        });
       }
       onSuccess?.();
     } catch (error) {
       toast({
-        title: job && job.id ? "Error Updating Job" : "Error Creating Job",
-        description: "Something went wrong. Please try again.",
-        variant: "destructive",
+        title: job && job.id ? 'Error Updating Job' : 'Error Creating Job',
+        description: 'Something went wrong. Please try again.',
+        variant: 'destructive'
       });
     } finally {
       setIsSubmitting(false);
@@ -102,7 +123,9 @@ const CreateJobForm = ({ onSuccess, job }: CreateJobFormProps) => {
             {/* --- Title + Company --- */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="title">Job Title *</Label>
+                <Label htmlFor="title">
+                  Job Title <span className="text-[#fe5b3b]">*</span>
+                </Label>
                 <Input
                   id="title"
                   value={formData.title}
@@ -112,7 +135,9 @@ const CreateJobForm = ({ onSuccess, job }: CreateJobFormProps) => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="company">Company *</Label>
+                <Label htmlFor="company">
+                  Company <span className="text-[#fe5b3b]">*</span>
+                </Label>
                 <Input
                   id="company"
                   value={formData.company}
@@ -125,7 +150,9 @@ const CreateJobForm = ({ onSuccess, job }: CreateJobFormProps) => {
 
             {/* --- Location --- */}
             <div className="space-y-2">
-              <Label htmlFor="location">Location *</Label>
+              <Label htmlFor="location">
+                Location <span className="text-[#fe5b3b]">*</span>
+              </Label>
               <Input
                 id="location"
                 value={formData.location}
@@ -137,21 +164,33 @@ const CreateJobForm = ({ onSuccess, job }: CreateJobFormProps) => {
 
             {/* --- Description --- */}
             <div className="space-y-2">
-              <Label htmlFor="description">Job Description *</Label>
+              <Label htmlFor="description">
+                Job Description <span className="text-[#fe5b3b]">*</span>
+              </Label>
               <div className="border rounded-lg overflow-hidden bg-white">
-                <JoditEditor value={formData.description} onChange={handleDescriptionChange} config={configStyles} />
+                <JoditEditor
+                  value={formData.description}
+                  onChange={handleDescriptionChange}
+                  config={configStyles}
+                />
               </div>
             </div>
 
             {/* --- Deadline --- */}
             <div className="space-y-2">
-              <Label htmlFor="deadline">Job Deadline *</Label>
+              <Label htmlFor="deadline">
+                Job Deadline <span className="text-[#fe5b3b]">*</span>
+              </Label>
               <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
                 <PopoverTrigger asChild>
                   <Input
                     id="deadline"
                     type="text"
-                    value={formData.deadline ? formData.deadline.toLocaleDateString() : ''}
+                    value={
+                      formData.deadline
+                        ? formData.deadline.toLocaleDateString()
+                        : ''
+                    }
                     onClick={() => setCalendarOpen(true)}
                     readOnly
                     placeholder="Select deadline date"
@@ -173,7 +212,9 @@ const CreateJobForm = ({ onSuccess, job }: CreateJobFormProps) => {
 
             {/* --- Status --- */}
             <div className="space-y-2">
-              <Label htmlFor="status">Status *</Label>
+              <Label htmlFor="status">
+                Status <span className="text-[#fe5b3b]">*</span>
+              </Label>
               <select
                 id="status"
                 value={formData.status}
@@ -193,10 +234,16 @@ const CreateJobForm = ({ onSuccess, job }: CreateJobFormProps) => {
             type="submit"
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="w-full"
+            className="w-full bg-[#3aafef]"
             size="lg"
           >
-            {isSubmitting ? (job ? 'Updating Job...' : 'Creating Job...') : job ? 'Update Job' : 'Create Job Posting'}
+            {isSubmitting
+              ? job
+                ? 'Updating Job...'
+                : 'Creating Job...'
+              : job
+              ? 'Update Job'
+              : 'Create Job Posting'}
           </Button>
         </div>
       </Card>

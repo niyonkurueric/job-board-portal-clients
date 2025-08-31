@@ -83,47 +83,23 @@ const ApplicationsList = () => {
             const location = app.location || app.job_location;
             const cvLink = app.cvLink || app.cv_url;
 
-            const getStatusColor = (s: string) => {
-              switch (s) {
-                case "pending":
-                  return "bg-yellow-100 text-yellow-800 border-yellow-200";
-                case "reviewed":
-                  return "bg-blue-100 text-blue-800 border-blue-200";
-                case "accepted":
-                  return "bg-green-100 text-green-800 border-green-200";
-                case "rejected":
-                  return "bg-red-100 text-red-800 border-red-200";
-                default:
-                  return "bg-gray-100 text-gray-700 border-gray-200";
-              }
-            };
-
-            const getStatusIcon = (s: string) => {
-              switch (s) {
-                case "pending":
-                  return <Clock className="h-4 w-4" />;
-                case "reviewed":
-                  return <Users className="h-4 w-4" />;
-                case "accepted":
-                  return <CheckCircle className="h-4 w-4" />;
-                case "rejected":
-                  return <XCircle className="h-4 w-4" />;
-                default:
-                  return <Clock className="h-4 w-4" />;
-              }
-            };
 
             return (
-              <Card key={app.id} className="bg-white shadow-sm hover:shadow-md transition-shadow">
+              <Card
+                key={app.id}
+                className="bg-white shadow-sm  transition-shadow"
+              >
                 <CardContent className="p-5">
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-4">
-                      <div className="p-3 bg-blue-600 rounded-lg">
-                        <Building2 className="h-6 w-6 text-white" />
+                      <div className="p-3 border rounded-lg">
+                        <Building2 className="h-6 w-6 text-[#3aafef]" />
                       </div>
                       <div>
-                        <h3 className="text-lg font-semibold text-gray-900">{jobTitle}</h3>
-                        <p className="text-sm text-gray-600">{company}</p>
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          {jobTitle}
+                        </h3>
+                        {/* <p className="text-sm text-gray-600">{company}</p> */}
                         <div className="flex items-center gap-3 mt-2 text-sm text-gray-500">
                           {location && (
                             <span className="inline-flex items-center gap-1">
@@ -132,7 +108,7 @@ const ApplicationsList = () => {
                           )}
                           {appliedAt && (
                             <span className="inline-flex items-center gap-1">
-                              <Calendar className="h-4 w-4" />{" "}
+                              <Calendar className="h-4 w-4" />{' '}
                               {new Date(appliedAt).toLocaleDateString()}
                             </span>
                           )}
@@ -141,22 +117,29 @@ const ApplicationsList = () => {
                     </div>
 
                     <div className="flex flex-col items-end gap-2">
-                      <Badge className={`${getStatusColor(status)} border`}>
-                        <span className="inline-flex items-center gap-1">
-                          {getStatusIcon(status)} <span className="capitalize">{status}</span>
-                        </span>
-                      </Badge>
                       <div className="flex items-center gap-2">
                         {cvLink && (
-                          <a href={cvLink} target="_blank" rel="noopener noreferrer">
-                            <Button variant="outline" size="sm">
+                          <a
+                            href={cvLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="hover:bg-[#3aafef] cursor-pointer"
+                            >
                               View CV
                             </Button>
                           </a>
                         )}
                         {jobId && (
                           <Link to={`/dashboard/jobs/${jobId}`}>
-                            <Button variant="outline" size="sm">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="hover:bg-[#3aafef] cursor-pointer"
+                            >
                               <Eye className="mr-2 h-4 w-4" /> View Job
                             </Button>
                           </Link>
@@ -168,7 +151,9 @@ const ApplicationsList = () => {
                   {app.cover_letter || app.coverLetter ? (
                     <div className="mt-4 p-4 bg-gray-50 rounded-md text-sm text-gray-700">
                       <div
-                        dangerouslySetInnerHTML={{ __html: app.cover_letter || app.coverLetter }}
+                        dangerouslySetInnerHTML={{
+                          __html: app.cover_letter || app.coverLetter
+                        }}
                       />
                     </div>
                   ) : null}

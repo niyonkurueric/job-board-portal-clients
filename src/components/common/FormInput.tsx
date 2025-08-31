@@ -13,7 +13,7 @@ const FormInput = React.forwardRef<HTMLInputElement, FormInputProps>(({ label, e
       {icon && <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">{icon}</span>}
       <input
         ref={ref}
-        className={`pl-10 w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${className} ${error ? 'border-red-500' : 'border-input'}`}
+        className={`pl-10 w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-300 ${className} ${error ? 'border-red-500' : 'border-input'}`}
         {...props}
       />
     </div>

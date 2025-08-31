@@ -88,7 +88,9 @@ const Applications = () => {
     <div className="min-h-screen bg-background">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground">My Applications</h1>
+          <h1 className="text-3xl font-bold text-foreground">
+            My Applications
+          </h1>
           <p className="text-muted-foreground mt-2">
             Track the status of your job applications
           </p>
@@ -102,9 +104,10 @@ const Applications = () => {
                 No Applications Yet
               </h3>
               <p className="text-muted-foreground mb-6">
-                You haven't applied to any jobs yet. Start exploring opportunities!
+                You haven't applied to any jobs yet. Start exploring
+                opportunities!
               </p>
-              <Link to="/">
+              <Link to="/" className="bg-[#3aafef]">
                 <Button>Browse Jobs</Button>
               </Link>
             </CardContent>
@@ -112,7 +115,10 @@ const Applications = () => {
         ) : (
           <div className="space-y-6">
             {userApplications.map((application) => (
-              <Card key={application.id} className="bg-gradient-card shadow-card hover:shadow-elegant transition-all duration-300">
+              <Card
+                key={application.id}
+                className="bg-gradient-card shadow-card hover:shadow-elegant transition-all duration-300"
+              >
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between">
                     <div className="flex items-start space-x-4">
@@ -128,25 +134,30 @@ const Applications = () => {
                         </p>
                         <div className="flex items-center space-x-1 mt-2 text-sm text-muted-foreground">
                           <Calendar className="h-4 w-4" />
-                          <span>Applied on {new Date(application.appliedDate).toLocaleDateString()}</span>
+                          <span>
+                            Applied on{' '}
+                            {new Date(
+                              application.appliedDate
+                            ).toLocaleDateString()}
+                          </span>
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="flex flex-col items-end space-y-3">
-                      <Badge className={getStatusColor(application.status)}>
-                        {getStatusIcon(application.status)}
-                        <span className="ml-1 capitalize">{application.status}</span>
-                      </Badge>
                       <Link to={`/job/${application.jobId}`}>
-                        <Button variant="outline" size="sm">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="hover:bg-[#3aafef]"
+                        >
                           <Eye className="mr-2 h-4 w-4" />
                           View Job
                         </Button>
                       </Link>
                     </div>
                   </div>
-                  
+
                   <div className="mt-4 p-4 bg-secondary/30 rounded-lg">
                     <p className="text-sm text-muted-foreground">
                       {getStatusMessage(application.status)}
@@ -165,12 +176,10 @@ const Applications = () => {
                 </CardContent>
               </Card>
             ))}
-            
+
             <div className="text-center pt-6">
               <Link to="/">
-                <Button variant="outline">
-                  Find More Jobs
-                </Button>
+                <Button variant="outline">Find More Jobs</Button>
               </Link>
             </div>
           </div>

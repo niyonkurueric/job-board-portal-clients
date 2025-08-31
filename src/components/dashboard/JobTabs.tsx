@@ -61,7 +61,7 @@ const JobTabs = ({ jobs, onCreate, onEdit = undefined, onDelete, userRole }) => 
         <h4 className="text-lg font-semibold text-gray-800">Job List</h4>
         {onCreate && (
           <button
-            className="px-4 py-2 rounded-lg font-medium bg-blue-600 text-white hover:bg-blue-700 transition"
+            className="px-4 py-2 rounded-sm font-medium bg-[#3aafef] text-white hover:bg-[ #1a81b8ff] transition"
             onClick={() => setShowCreateModal(true)}
           >
             + Create Job
@@ -80,7 +80,7 @@ const JobTabs = ({ jobs, onCreate, onEdit = undefined, onDelete, userRole }) => 
         <AppModal
           open={showCreateModal}
           onOpenChange={setShowCreateModal}
-          title="Create New Job"
+          title="Job Posting"
         >
           <CreateJobForm onSuccess={handleJobCreated} />
         </AppModal>
@@ -92,17 +92,32 @@ const JobTabs = ({ jobs, onCreate, onEdit = undefined, onDelete, userRole }) => 
           onOpenChange={setShowEditModal}
           title="Edit Job"
         >
-          <CreateJobForm onSuccess={() => setShowEditModal(false)} job={editJob} />
+          <CreateJobForm
+            onSuccess={() => setShowEditModal(false)}
+            job={editJob}
+          />
         </AppModal>
       )}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure you want to delete this job?</AlertDialogTitle>
+            <AlertDialogTitle>
+              Are you sure you want to delete this job?
+            </AlertDialogTitle>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setShowDeleteDialog(false)}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDeleteJob} className="bg-red-500 text-white hover:bg-red-600">Yes, Delete</AlertDialogAction>
+            <AlertDialogCancel
+              onClick={() => setShowDeleteDialog(false)}
+              className="hover:bg-gray-400"
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteJob}
+              className="bg-red-500 text-white hover:bg-red-600"
+            >
+              Yes, Delete
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

@@ -51,6 +51,9 @@ export const fetchJobById = async (jobId: string | number) => {
   return apiFetch(`/api/jobs/${jobId}`);
 };
 
+export const fetchLocations = async () => {
+  return apiFetch(`/api/jobs/locations`);
+};
 export const deleteJob = async (jobId: string | number) => {
   return apiFetch(`/api/jobs/${jobId}`, {
     method: 'DELETE',

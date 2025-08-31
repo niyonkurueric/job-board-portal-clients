@@ -77,31 +77,29 @@ const Login = () => {
 
   return (
     <div className="h-screen flex flex-col md:flex-row bg-gradient-to-br from-blue-50 to-purple-100 overflow-hidden">
-      {/* Left Hero/Brand Section */}
-      <div className="hidden md:flex flex-col justify-center items-center w-1/2 bg-gradient-to-br from-blue-600 to-purple-600 text-white p-8 relative h-full">
-        <div className="z-10 flex flex-col items-center justify-center h-full">
-          <h1 className="text-3xl font-extrabold mb-2 tracking-tight drop-shadow-lg">Welcome to Job Board Portal</h1>
-          <p className="text-base mb-4 max-w-md text-white/90 text-center">Find your dream job, connect with top companies, and take the next step in your career journey.</p>
-        </div>
-        <div className="absolute bottom-4 left-0 right-0 text-center text-xs text-white/60">&copy; {new Date().getFullYear()} Job Board Portal. All rights reserved.</div>
-      </div>
       {/* Login Form Section */}
       <div className="flex flex-1 items-center justify-center py-4 px-2 h-full overflow-hidden">
         <div className="w-full max-w-md">
           <Card className="shadow-2xl border border-muted-foreground/10 bg-white/90 backdrop-blur-md">
             <CardHeader className="text-center pb-2">
-              <CardTitle className="text-3xl font-bold text-blue-700 mb-1">Sign In</CardTitle>
-              <CardDescription className="text-base text-muted-foreground mb-2">Sign in to your account to apply for jobs</CardDescription>
+              <CardTitle className="text-3xl font-bold text-[#222a5f] mb-1">
+                Sign In
+              </CardTitle>
+              <CardDescription className="text-base text-muted-foreground mb-2 py-4">
+                Sign in to your account to apply for jobs!
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="mb-4">
+              {/* <div className="mb-4">
                 <GoogleOAuth />
-              </div>
-              <div className="flex items-center my-4">
+              </div> */}
+              {/* <div className="flex items-center my-4">
                 <div className="flex-grow border-t border-muted-foreground/20" />
-                <span className="mx-2 text-xs text-muted-foreground">or sign in with email</span>
+                <span className="mx-2 text-xs text-muted-foreground">
+                  or sign in with email
+                </span>
                 <div className="flex-grow border-t border-muted-foreground/20" />
-              </div>
+              </div> */}
               <form onSubmit={handleSubmit} className="space-y-5">
                 <FormInput
                   id="email"
@@ -127,14 +125,21 @@ const Login = () => {
                   error={errors.password}
                   autoComplete="current-password"
                 />
-                <FormButton type="submit" loading={isLoading} className="mt-2">
+                <FormButton
+                  type="submit"
+                  loading={isLoading}
+                  className="w-full py-3 bg-[#3aafef] hover:bg-[#0a7fbd] text-white font-semibold rounded-lg flex items-center justify-center gap-2"
+                >
                   Sign In
                 </FormButton>
               </form>
               <div className="mt-8 text-center">
                 <p className="text-sm text-muted-foreground">
                   Don't have an account?{' '}
-                  <Link to="/signup" className="text-primary font-semibold hover:underline">
+                  <Link
+                    to="/signup"
+                    className="text-[#3aafef] font-light hover:underline"
+                  >
                     Sign up
                   </Link>
                 </p>

@@ -7,15 +7,35 @@ import { fetchAdminApplications } from '@/api/applicationsApi';
 import { setApplications, setLoading } from '@/store/slices/applicationsSlice';
 
 const columns = [
-  { key: 'title', label: 'Job Title', render: value => value || '-' },
-  { key: 'company', label: 'Company name', render: value => value || '-' },
-  { key: 'location', label: 'Location', render: value => <span className="max-w-xs truncate" dangerouslySetInnerHTML={{ __html: value || '-' }} /> },
-  { key: 'deadline', label: 'Application Deadline', render: value => value ? new Date(value).toLocaleString() : '-' },
+  { key: 'title', label: 'Job Title', render: (value) => value || '-' },
+  { key: 'company', label: 'Company name', render: (value) => value || '-' },
+  {
+    key: 'location',
+    label: 'Location',
+    render: (value) => (
+      <span
+        className="max-w-xs truncate"
+        dangerouslySetInnerHTML={{ __html: value || '-' }}
+      />
+    )
+  },
+  {
+    key: 'deadline',
+    label: 'Application Deadline',
+    render: (value) => (value ? new Date(value).toLocaleString() : '-')
+  },
+  {
+    key: 'totalApplicants',
+    label: 'Total Applications',
+    render: (value) => (value ? value : 0)
+  }
 ];
 
 const JobApplicationsList = ({ jobId }) => {
   const dispatch = useDispatch();
-  const { applications, isLoading } = useSelector((state: RootState) => state.applications);
+  const { applications, isLoading } = useSelector(
+    (state: RootState) => state.applications
+  );
   const [deleteId, setDeleteId] = useState(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [viewJob, setViewJob] = useState(null); // job object to view applications
@@ -62,42 +82,62 @@ const JobApplicationsList = ({ jobId }) => {
     ...columns,
     {
       key: 'view',
-      label: 'View',
+      label: 'View details',
       render: (_, row) => (
         <button
-          className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+          className="px-3 py-1 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600"
           onClick={() => setViewJob(row)}
         >
           View
         </button>
-      ),
-    },
-    {
-      key: 'delete',
-      label: 'Delete',
-      render: (_, row) => (
-        <button
-          className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-          onClick={() => handleDelete(row.id)}
-        >
-          Delete
-        </button>
-      ),
-    },
+      )
+    }
+    // {
+    //   key: 'delete',
+    //   label: 'Number of applicants',
+    //   render: (_, row) => (
+    //     <button
+    //       className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+    //       onClick={() => handleDelete(row.id)}
+    //     >
+    //       Delete
+    //     </button>
+    //   )
+    // }
   ];
 
   return (
     <div className="w-full">
       <h2 className="text-xl font-bold mb-4">Applications for this Job</h2>
       {isLoading && <div>Loading...</div>}
-      <ReusableTable columns={columnsWithActions} data={applications} emptyMessage="No applications found for this job." />
+      <ReusableTable
+        columns={columnsWithActions}
+        data={applications}
+        emptyMessage="No applications found for this job."
+      />
       {showConfirm && (
-        <AppModal open={showConfirm} onOpenChange={setShowConfirm} title="Delete Application">
+        <AppModal
+          open={showConfirm}
+          onOpenChange={setShowConfirm}
+          title="Delete Application"
+        >
           <div className="p-4 min-w-[300px]">
-            <h3 className="text-lg font-bold mb-4">Are you sure you want to delete this application?</h3>
+            <h3 className="text-lg font-bold mb-4">
+              Are you sure you want to delete this application?
+            </h3>
             <div className="flex gap-4">
-              <button className="px-4 py-2 bg-red-500 text-white rounded" onClick={confirmDelete}>Yes, Delete</button>
-              <button className="px-4 py-2 bg-gray-300 rounded" onClick={() => setShowConfirm(false)}>Cancel</button>
+              <button
+                className="px-4 py-2 bg-red-500 text-white rounded"
+                onClick={confirmDelete}
+              >
+                Yes, Delete
+              </button>
+              <button
+                className="px-4 py-2 bg-gray-300 rounded"
+                onClick={() => setShowConfirm(false)}
+              >
+                Cancel
+              </button>
             </div>
           </div>
         </AppModal>
@@ -105,25 +145,63 @@ const JobApplicationsList = ({ jobId }) => {
 
       {/* Modal for viewing user applications only, using AppModal */}
       {viewJob && (
-        <AppModal open={!!viewJob} onOpenChange={setViewJob} title="User Applications">
+        <AppModal
+          open={!!viewJob}
+          onOpenChange={setViewJob}
+          title="User Applications"
+        >
           <div className="max-h-[70vh] overflow-y-auto">
-            {Array.isArray(viewJob.applications) && viewJob.applications.length > 0 ? (
+            {Array.isArray(viewJob.applications) &&
+            viewJob.applications.length > 0 ? (
               <div className="space-y-6">
                 {viewJob.applications.map((app, idx) => (
-                  <div key={app.id || idx} className="border rounded-lg p-4 bg-gray-50">
-                    <div className="font-semibold text-base mb-2">{app.applicant_name || '-'}</div>
-                    <div className="text-sm text-gray-700 mb-1">Email: {app.applicant || '-'}</div>
-                    <div className="text-sm text-gray-700 mb-1">Applied At: {app.created_at ? new Date(app.created_at).toLocaleString() : '-'}</div>
-                    <div className="text-sm text-gray-700 mb-1">CV: {app.cv_url ? <a href={app.cv_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">View CV</a> : '-'}</div>
+                  <div
+                    key={app.id || idx}
+                    className="border rounded-lg p-4 bg-gray-50"
+                  >
+                    <div className="font-semibold text-base mb-2">
+                      {app.applicant_name || '-'}
+                    </div>
+                    <div className="text-sm text-gray-700 mb-1">
+                      Email: {app.applicant || '-'}
+                    </div>
+                    <div className="text-sm text-gray-700 mb-1">
+                      Applied At:{' '}
+                      {app.created_at
+                        ? new Date(app.created_at).toLocaleString()
+                        : '-'}
+                    </div>
+                    <div className="text-sm text-gray-700 mb-1">
+                      CV:{' '}
+                      {app.cv_url ? (
+                        <a
+                          href={app.cv_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 underline"
+                        >
+                          View CV
+                        </a>
+                      ) : (
+                        '-'
+                      )}
+                    </div>
                     <div className="mt-2">
                       <div className="font-semibold">Cover Letter:</div>
-                      <div className="prose max-w-full" dangerouslySetInnerHTML={{ __html: app.cover_letter || '-' }} />
+                      <div
+                        className="prose max-w-full"
+                        dangerouslySetInnerHTML={{
+                          __html: app.cover_letter || '-'
+                        }}
+                      />
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="text-gray-500">No user applications found for this job.</div>
+              <div className="text-gray-500">
+                No user applications found for this job.
+              </div>
             )}
           </div>
         </AppModal>

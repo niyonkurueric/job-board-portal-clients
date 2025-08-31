@@ -1,28 +1,43 @@
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate, useMatch } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "@/store/store";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Briefcase, MapPin, Calendar, Building2, Clock, ExternalLink } from "lucide-react";
-import { fetchJobById, applyToJob } from "@/api/jobsApi";
-import { fetchUserApplications } from "@/api/applicationsApi";
-import { setUserApplications } from "@/store/slices/applicationsSlice";
-import { AppModal } from "../common/AppModal";
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate, useMatch } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '@/store/store';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import {
+  Briefcase,
+  MapPin,
+  Calendar,
+  Building2,
+  Clock,
+  ExternalLink
+} from 'lucide-react';
+import { fetchJobById, applyToJob } from '@/api/jobsApi';
+import { fetchUserApplications } from '@/api/applicationsApi';
+import { setUserApplications } from '@/store/slices/applicationsSlice';
+import { AppModal } from '../common/AppModal';
 
 const JobDetails = () => {
   const { id } = useParams();
-  const matchApply = useMatch("/dashboard/jobs/:id/apply");
+  const matchApply = useMatch('/dashboard/jobs/:id/apply');
   const [isApplicationOpen, setIsApplicationOpen] = useState(!!matchApply);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const job = useSelector((state: RootState) => state.jobs.jobs.find((j) => j.id === Number(id)));
+  const job = useSelector((state: RootState) =>
+    state.jobs.jobs.find((j) => j.id === Number(id))
+  );
   // Get current user info from auth slice
   const user = useSelector((state: RootState) => state.auth?.user);
-  const userApplications = useSelector((state: RootState) => state.applications.userApplications);
-  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+  const userApplications = useSelector(
+    (state: RootState) => state.applications.userApplications
+  );
+  const isAuthenticated = useSelector(
+    (state: RootState) => state.auth.isAuthenticated
+  );
   const hasApplied = Array.isArray(userApplications)
-    ? userApplications.some((a: any) => String(a?.jobId ?? a?.job_id) === String(id))
+    ? userApplications.some(
+        (a: any) => String(a?.jobId ?? a?.job_id) === String(id)
+      )
     : false;
   const [loading, setLoading] = useState(!job);
 
@@ -32,11 +47,16 @@ const JobDetails = () => {
       fetchJobById(id)
         .then((jobDataRaw) => {
           let jobData = jobDataRaw as any;
-          if (jobData && typeof jobData === "object" && "data" in jobData && jobData.data) {
+          if (
+            jobData &&
+            typeof jobData === 'object' &&
+            'data' in jobData &&
+            jobData.data
+          ) {
             jobData = jobData.data;
           }
           if (jobData && jobData.id) {
-            dispatch({ type: "jobs/addJob", payload: jobData });
+            dispatch({ type: 'jobs/addJob', payload: jobData });
           }
         })
         .finally(() => setLoading(false));
@@ -74,7 +94,9 @@ const JobDetails = () => {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent mx-auto mb-4"></div>
-          <p className="text-xl text-gray-600 font-medium">Loading job details...</p>
+          <p className="text-xl text-gray-600 font-medium">
+            Loading job details...
+          </p>
         </div>
       </div>
     );
@@ -97,10 +119,10 @@ const JobDetails = () => {
   }
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
     });
   };
 
@@ -110,8 +132,8 @@ const JobDetails = () => {
     const diffInMs = now.getTime() - jobDate.getTime();
     const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
 
-    if (diffInDays === 0) return "Today";
-    if (diffInDays === 1) return "Yesterday";
+    if (diffInDays === 0) return 'Today';
+    if (diffInDays === 1) return 'Yesterday';
     if (diffInDays < 7) return `${diffInDays} days ago`;
     if (diffInDays < 30) return `${Math.floor(diffInDays / 7)} weeks ago`;
     return `${Math.floor(diffInDays / 30)} months ago`;
@@ -120,14 +142,17 @@ const JobDetails = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       {/* Hero Section */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700">
+
+      <div className="relative overflow-hidden bg-[#222a5f]">
         <div className="absolute inset-0 bg-black opacity-10"></div>
         <div className="relative max-w-6xl mx-auto px-6 py-16">
           <div className="text-center text-white">
             <div className="inline-flex items-center justify-center w-20 h-20 bg-white bg-opacity-20 rounded-full mb-6 backdrop-blur-sm">
               <Briefcase className="w-10 h-10" />
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">{job.title}</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
+              {job.title}
+            </h1>
             <div className="flex flex-wrap justify-center items-center gap-6 text-lg opacity-90">
               <div className="flex items-center gap-2">
                 <Building2 className="w-5 h-5" />
@@ -154,10 +179,15 @@ const JobDetails = () => {
             <Card className="shadow-xl border-0 bg-white backdrop-blur-sm">
               <CardHeader className="border-b border-gray-100 pb-6">
                 <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-                  <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                  <div className="w-8 h-8 bg-[#3aafef] rounded-lg flex items-center justify-center">
                     <ExternalLink className="w-4 h-4 text-white" />
                   </div>
                   Job Description
+                  {user?.role !== 'admin' && hasApplied && (
+                    <div className="flex flex-end text-sm text-center text-green-600 font-medium">
+                      <p>✓ You already applied to this job</p>
+                    </div>
+                  )}
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-6">
@@ -165,7 +195,9 @@ const JobDetails = () => {
                   <div
                     className="bg-gray-50 rounded-xl p-6 text-gray-700 leading-relaxed text-base min-h-[200px] border border-gray-100"
                     dangerouslySetInnerHTML={{
-                      __html: job.description || "No description available for this position.",
+                      __html:
+                        job.description ||
+                        'No description available for this position.'
                     }}
                   />
                 </div>
@@ -173,7 +205,7 @@ const JobDetails = () => {
             </Card>
 
             {/* Apply Button (only for non-admin users) */}
-            {user?.role !== "admin" && !hasApplied && (
+            {user?.role !== 'admin' && !hasApplied && (
               <div className="mt-8">
                 <Button
                   onClick={() => {
@@ -187,11 +219,6 @@ const JobDetails = () => {
                 </Button>
               </div>
             )}
-            {user?.role !== "admin" && hasApplied && (
-              <div className="mt-8 text-center text-green-600 font-medium">
-                ✓ You already applied to this job
-              </div>
-            )}
           </div>
 
           {/* Job Info Sidebar */}
@@ -199,7 +226,9 @@ const JobDetails = () => {
             {/* Job Details Card */}
             <Card className="shadow-xl border-0 bg-white backdrop-blur-sm">
               <CardHeader className="pb-4">
-                <CardTitle className="text-xl font-bold text-gray-900">Job Details</CardTitle>
+                <CardTitle className="text-xl font-bold text-gray-900">
+                  Job Details
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-start gap-3 p-4 bg-blue-50 rounded-lg">
@@ -222,16 +251,22 @@ const JobDetails = () => {
                   <Calendar className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                   <div>
                     <p className="font-semibold text-gray-900">Posted</p>
-                    <p className="text-gray-700">{formatDate(job.created_at)}</p>
-                    <p className="text-sm text-gray-500">{getTimeAgo(job.created_at)}</p>
+                    <p className="text-gray-700">
+                      {formatDate(job.created_at)}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      {getTimeAgo(job.created_at)}
+                    </p>
                   </div>
                 </div>
-                {"deadline" in job && job.deadline && (
+                {'deadline' in job && job.deadline && (
                   <div className="flex items-start gap-3 p-4 bg-yellow-50 rounded-lg">
                     <Calendar className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
                     <div>
                       <p className="font-semibold text-gray-900">Deadline</p>
-                      <p className="text-gray-700">{formatDate(job.deadline as string)}</p>
+                      <p className="text-gray-700">
+                        {formatDate(job.deadline as string)}
+                      </p>
                     </div>
                   </div>
                 )}
@@ -240,7 +275,7 @@ const JobDetails = () => {
           </div>
         </div>
       </div>
-      {user?.role !== "admin" && (
+      {user?.role !== 'admin' && (
         <AppModal
           open={isApplicationOpen}
           onOpenChange={(open) => {
@@ -271,30 +306,30 @@ type ApplyJobFormProps = {
 };
 
 const ApplyJobForm: React.FC<ApplyJobFormProps> = ({ jobId, job, onClose }) => {
-  const [cvLink, setCvLink] = useState("");
-  const [coverLetter, setCoverLetter] = useState("");
+  const [cvLink, setCvLink] = useState('');
+  const [coverLetter, setCoverLetter] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setError("");
-    setSuccess("");
+    setError('');
+    setSuccess('');
     if (!cvLink || !coverLetter) {
-      setError("Please provide both CV/Resume link and cover letter.");
+      setError('Please provide both CV/Resume link and cover letter.');
       setIsSubmitting(false);
       return;
     }
     try {
       await applyToJob(jobId, { cvLink, coverLetter });
-      setSuccess("Application submitted successfully!");
-      setCvLink("");
-      setCoverLetter("");
+      setSuccess('Application submitted successfully!');
+      setCvLink('');
+      setCoverLetter('');
       setTimeout(onClose, 1500);
     } catch (err) {
-      setError("Failed to submit application. Please try again.");
+      setError('Failed to submit application. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -306,13 +341,17 @@ const ApplyJobForm: React.FC<ApplyJobFormProps> = ({ jobId, job, onClose }) => {
         <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
           <Briefcase className="w-8 h-8 text-white" />
         </div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Apply for {job?.title}</h2>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          Apply for {job?.title}
+        </h2>
         <p className="text-gray-600 text-lg">{job?.company}</p>
         <p className="text-sm text-gray-500">{job?.location}</p>
       </div>
       <form className="space-y-6" onSubmit={handleSubmit}>
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">CV/Resume Link *</label>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            CV/Resume Link *
+          </label>
           <input
             type="url"
             className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
@@ -323,7 +362,9 @@ const ApplyJobForm: React.FC<ApplyJobFormProps> = ({ jobId, job, onClose }) => {
           />
         </div>
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">Cover Letter *</label>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Cover Letter *
+          </label>
           <textarea
             className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 min-h-[120px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
             placeholder="Tell us why you're the perfect fit for this role..."
@@ -333,13 +374,15 @@ const ApplyJobForm: React.FC<ApplyJobFormProps> = ({ jobId, job, onClose }) => {
           />
         </div>
         {error && <div className="text-red-500 text-sm mb-2">{error}</div>}
-        {success && <div className="text-green-600 text-sm mb-2">{success}</div>}
+        {success && (
+          <div className="text-green-600 text-sm mb-2">{success}</div>
+        )}
         <button
           type="submit"
           className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-4 rounded-xl text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-200"
           disabled={isSubmitting}
         >
-          {isSubmitting ? "Submitting..." : "Submit Application"}
+          {isSubmitting ? 'Submitting...' : 'Submit Application'}
         </button>
       </form>
     </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   Briefcase,
   Upload,
@@ -6,19 +6,19 @@ import {
   CheckCircle,
   AlertCircle,
   ArrowLeft,
-  MapPin,
-} from "lucide-react";
-import { useNavigate, useParams } from "react-router-dom";
-import { fetchJobById } from "@/api/jobsApi";
-import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "@/store/store";
-import { applicationSchema } from "@/schema/applicationSchema";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import JoditEditor from "jodit-react";
-import configStyles from "@/components/common/configuration";
-import { applyForJob } from "@/api/applicationsApi";
-import { useToast } from "@/components/ui/use-toast";
+  MapPin
+} from 'lucide-react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { fetchJobById } from '@/api/jobsApi';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '@/store/store';
+import { applicationSchema } from '@/schema/applicationSchema';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import JoditEditor from 'jodit-react';
+import configStyles from '@/components/common/configuration';
+import { applyForJob } from '@/api/applicationsApi';
+import { useToast } from '@/components/ui/use-toast';
 
 const ApplyJobPage = () => {
   const { toast } = useToast();
@@ -36,28 +36,35 @@ const ApplyJobPage = () => {
     handleSubmit,
     setValue,
     formState: { errors, isSubmitting },
-    watch,
+    watch
   } = useForm({
     resolver: zodResolver(applicationSchema),
     defaultValues: {
-      cvLink: "",
-      coverLetter: "",
-    },
+      cvLink: '',
+      coverLetter: ''
+    }
   });
 
-  const applicationError = useSelector((state: RootState) => state.applications);
+  const applicationError = useSelector(
+    (state: RootState) => state.applications
+  );
   // If your applicationsSlice uses error, make sure it's defined in ApplicationsState. If not, remove the optional chaining.
-  const coverLetterValue = watch("coverLetter") || "";
+  const coverLetterValue = watch('coverLetter') || '';
 
   useEffect(() => {
     if (!job && id) {
       fetchJobById(id).then((jobDataRaw) => {
         let jobData = jobDataRaw as any;
-        if (jobData && typeof jobData === "object" && "data" in jobData && jobData.data) {
+        if (
+          jobData &&
+          typeof jobData === 'object' &&
+          'data' in jobData &&
+          jobData.data
+        ) {
           jobData = jobData.data;
         }
         if (jobData && jobData.id) {
-          dispatch({ type: "jobs/addJob", payload: jobData });
+          dispatch({ type: 'jobs/addJob', payload: jobData });
         }
       });
     }
@@ -69,23 +76,30 @@ const ApplyJobPage = () => {
         await applyForJob({
           jobId: String(id),
           cover_letter: data.coverLetter,
-          cv_url: data.cvLink,
+          cv_url: data.cvLink
         });
+
         toast({
-          title: "Success",
-          description: "Application submitted successfully!",
-          variant: "default",
+          title: 'Success',
+          description: 'Application submitted successfully!',
+          variant: 'default'
         });
+
+        // ✅ redirect after success
+        navigate('/dashboard/applications');
       }
     } catch (error) {
-      let errorMsg = "Failed to submit application.";
+      let errorMsg = 'Failed to submit application.';
       if (error && error.message) errorMsg = error.message;
       toast({
-        title: "Error",
+        title: 'Error',
         description: errorMsg,
-        variant: "destructive",
+        variant: 'destructive'
       });
-      dispatch({ type: "applications/fetchApplicationsFailure", payload: errorMsg });
+      dispatch({
+        type: 'applications/fetchApplicationsFailure',
+        payload: errorMsg
+      });
     }
   };
 
@@ -94,11 +108,18 @@ const ApplyJobPage = () => {
     if (id) {
       navigate(`/dashboard/jobs/${id}`);
     } else {
-      navigate("/dashboard/jobs");
+      navigate('/dashboard/jobs');
     }
   };
 
-  const InputField = ({ name, label, type = "text", placeholder, required = true, ...props }) => {
+  const InputField = ({
+    name,
+    label,
+    type = 'text',
+    placeholder,
+    required = true,
+    ...props
+  }) => {
     return (
       <div className="space-y-2">
         <label className="block text-sm font-medium text-gray-700">
@@ -111,12 +132,14 @@ const ApplyJobPage = () => {
             placeholder={placeholder}
             className={`w-full px-4 py-3 border-2 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 ${
               errors[name]
-                ? "border-red-300 bg-red-50 focus:border-red-500"
-                : "border-gray-200 focus:border-blue-500"
+                ? 'border-red-300 bg-red-50 focus:border-red-500'
+                : 'border-gray-200 focus:border-blue-500'
             }`}
             {...props}
           />
-          {errors[name] && <AlertCircle className="absolute right-3 top-3 w-5 h-5 text-red-500" />}
+          {errors[name] && (
+            <AlertCircle className="absolute right-3 top-3 w-5 h-5 text-red-500" />
+          )}
         </div>
         {errors[name] && (
           <p className="text-sm text-red-600 flex items-center gap-1">
@@ -131,7 +154,7 @@ const ApplyJobPage = () => {
   return (
     <div className="w-full">
       <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-2 text-white">
+        <div className="bg-[#222a5f] p-2 text-white">
           <div className="flex items-center gap-4 mb-4">
             <div className="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center">
               <Briefcase className="w-8 h-8" />
@@ -161,7 +184,7 @@ const ApplyJobPage = () => {
                   label="CV/Resume Link"
                   type="url"
                   placeholder="https://drive.google.com/your-resume"
-                  {...register("cvLink")}
+                  {...register('cvLink')}
                   error={errors.cvLink?.message}
                 />
                 <div className="space-y-2">
@@ -170,8 +193,10 @@ const ApplyJobPage = () => {
                   </label>
                   <JoditEditor
                     value={coverLetterValue}
-                    onBlur={(newContent) => setValue("coverLetter", newContent)}
-                    onChange={(newContent) => setValue("coverLetter", newContent)}
+                    onBlur={(newContent) => setValue('coverLetter', newContent)}
+                    onChange={(newContent) =>
+                      setValue('coverLetter', newContent)
+                    }
                     config={configStyles}
                   />
                   {errors.coverLetter && (
@@ -182,17 +207,20 @@ const ApplyJobPage = () => {
                   )}
                   <div className="flex justify-end text-sm text-gray-500">
                     <span>
-                      {typeof coverLetterValue === "string" ? coverLetterValue.length : 0}/500
+                      {typeof coverLetterValue === 'string'
+                        ? coverLetterValue.length
+                        : 0}
+                      /500
                     </span>
                   </div>
                 </div>
               </div>
             </div>
-            <div className="pt-6 border-t border-gray-200">
+            <div className="flex justify-center align-center w-1/3 pt-2">
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-200 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-white"
+                className="w-full py-2 px-1 rounded-xl font-semibold text-lg transition-all duration-200 border border-gray hover:from-blue-700 hover:to-purple-700 transform hover:-translate-y-0.5 text-[#3aafef]"
               >
                 {isSubmitting ? (
                   <div className="flex items-center justify-center gap-2">
@@ -200,7 +228,7 @@ const ApplyJobPage = () => {
                     Submitting Application...
                   </div>
                 ) : (
-                  "Submit Application"
+                  'Submit Application'
                 )}
               </button>
             </div>
