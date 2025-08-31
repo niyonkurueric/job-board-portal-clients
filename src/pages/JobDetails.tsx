@@ -324,17 +324,7 @@ const JobDetails = () => {
                       <Separator />
                     </>
                   )}
-                  {selectedJob.created_by && (
-                    <div className="flex items-center gap-3">
-                      <User className="w-4 h-4 text-gray-500" />
-                      <div>
-                        <p className="text-sm text-gray-500">Created by</p>
-                        <p className="font-medium text-xs">
-                          User ID: {selectedJob.created_by}
-                        </p>
-                      </div>
-                    </div>
-                  )}
+                  
                 </CardContent>
               </Card>
 
@@ -388,12 +378,6 @@ const JobDetails = () => {
               <div className="flex items-center gap-2">
                 <CalendarDays className="w-4 h-4" />
                 <span>Posted {new Date(selectedJob.created_at).toLocaleDateString()}</span>
-              </div>
-            )}
-            {selectedJob.created_by && (
-              <div className="flex items-center gap-2">
-                <User className="w-4 h-4" />
-                <span>Created by User ID: {selectedJob.created_by}</span>
               </div>
             )}
           </div>

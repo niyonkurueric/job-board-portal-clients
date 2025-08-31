@@ -18,18 +18,6 @@ const UsersListPage = () => {
 
   const columns = [
     {
-      name: 'ID',
-      selector: (row: any) => row.id,
-      sortable: true,
-      cell: (row: any) => (
-        <div className="flex items-center gap-2">
-          <User className="w-4 h-4 text-blue-500" />
-          <span className="font-mono text-sm">{row?.id}</span>
-        </div>
-      ),
-      width: '10%',
-    },
-    {
       name: 'Name',
       selector: (row: any) => row.name,
       sortable: true,
