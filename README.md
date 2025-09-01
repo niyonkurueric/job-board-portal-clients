@@ -107,8 +107,11 @@ REACT_APP_API_URL=https://your-api-url.com
 5. Open a Pull Request
 
 
-<img width="1436" height="776" alt="Screenshot 2025-08-12 at 17 17 36" src="https://github.com/user-attachments/assets/502d70d4-6fc0-4c7a-8dd2-f33d12440964" />
-<img width="1434" height="785" alt="Screenshot 2025-08-12 at 17 17 17" src="https://github.com/user-attachments/assets/d06ae27d-1124-44c7-b5e1-5d9cfe050226" />
-<img width="1435" height="788" alt="Screenshot 2025-08-12 at 17 17 07" src="https://github.com/user-attachments/assets/8a286af5-bb96-444d-88fe-a48dd0bbf0bc" />
-<img width="1432" height="785" alt="Screenshot 2025-08-12 at 17 16 54" src="https://github.com/user-attachments/assets/e22ecd0e-7cde-4add-beb5-3158d010ad35" />
+<img width="1431" height="893" alt="Screenshot 2025-08-31 at 20 40 59" src="https://github.com/user-attachments/assets/8df99d6b-17b3-4ef0-9395-6e2490c4f3d4" />
+<img width="1439" height="898" alt="Screenshot 2025-08-31 at 18 40 33" src="https://github.com/user-attachments/assets/07ad9d39-33d9-4e28-a4ce-2fab990be85d" />
+<img width="1438" height="858" alt="Screenshot 2025-08-31 at 18 40 11" src="https://github.com/user-attachments/assets/00deb481-3589-40ee-bdef-56b2279d7cb9" />
+<img width="1437" height="863" alt="Screenshot 2025-08-31 at 18 39 42" src="https://github.com/user-attachments/assets/acd6ed12-9e95-4e87-b983-f32d0d2460e3" />
+<img width="1436" height="900" alt="Screenshot 2025-08-31 at 18 39 29" src="https://github.com/user-attachments/assets/7196e7ad-19b5-4a5d-b825-8aad4c73cb05" />
+<img width="1440" height="891" alt="Screenshot 2025-08-31 at 18 39 14" src="https://github.com/user-attachments/assets/a53c9436-6004-433e-92cb-a108c749700d" />
+
 
